@@ -1,0 +1,60 @@
+:host {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 1.5rem;
+  background: #f7f3ec;
+  color: #27231f;
+}
+
+.system-page {
+  width: min(100%, 36rem);
+}
+
+.system-card {
+  padding: clamp(2rem, 7vw, 4rem);
+  border: 1px solid #e3d8ca;
+  border-radius: 1.25rem;
+  background: #fffdf9;
+  box-shadow: 0 1.25rem 3rem rgb(68 47 29 / 10%);
+  text-align: center;
+}
+
+.system-card__code {
+  margin: 0;
+  color: #8b4513;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.system-card h1 {
+  margin: 0.75rem 0 1rem;
+  font-size: clamp(2rem, 6vw, 3rem);
+}
+
+.system-card__message {
+  margin: 0;
+  color: #625b53;
+  line-height: 1.6;
+}
+
+.system-card__link {
+  display: inline-flex;
+  margin-top: 2rem;
+  padding: 0.8rem 1.25rem;
+  border-radius: 999px;
+  background: #8b4513;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.system-card__link:hover {
+  background: #6f360e;
+}
+
+.system-card__link:focus-visible {
+  outline: 3px solid #d69b6a;
+  outline-offset: 3px;
+}
