@@ -1,0 +1,152 @@
+<main class="profile-page">
+  <header class="profile-page__header">
+    <span class="profile-page__eyebrow">
+      Area personale
+    </span>
+
+    <h1>Il tuo profilo</h1>
+
+    <p>
+      Consulta i dati associati al tuo account OrdinaMii.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <section
+      class="state-card"
+      aria-live="polite"
+    >
+      <p>Caricamento del profilo...</p>
+    </section>
+  } @else if (loadError(); as message) {
+    <section
+      class="state-card state-card--error"
+      role="alert"
+    >
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="loadProfile()"
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (profile(); as user) {
+    <section class="profile-card">
+      <div class="profile-card__identity">
+        <div
+          class="profile-card__avatar"
+          aria-hidden="true"
+        >
+          {{ user.username.charAt(0).toUpperCase() }}
+        </div>
+
+        <div>
+          <h2>{{ user.username }}</h2>
+          <span>{{ roleLabels[user.role] }}</span>
+        </div>
+      </div>
+
+      <dl class="profile-details">
+        <div>
+          <dt>Email</dt>
+          <dd>{{ user.email }}</dd>
+        </div>
+
+        <div>
+          <dt>Ruolo</dt>
+          <dd>{{ roleLabels[user.role] }}</dd>
+        </div>
+
+        <div>
+          <dt>Account creato</dt>
+          <dd>
+            {{ user.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Ultimo aggiornamento</dt>
+          <dd>
+            {{ user.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
+          </dd>
+        </div>
+      </dl>
+
+      <form
+        class="phone-form"
+        [formGroup]="profileForm"
+        (ngSubmit)="saveProfile()"
+      >
+        <div class="phone-form__heading">
+          <h2>Contatti</h2>
+
+          @if (!canEditPhone()) {
+            <span>
+              Modifica disponibile solo per i clienti
+            </span>
+          }
+        </div>
+
+        <label for="phone">
+          Numero di telefono
+        </label>
+
+        <input
+          id="phone"
+          type="tel"
+          autocomplete="tel"
+          formControlName="phone"
+          placeholder="Es. +39 333 1234567"
+          [readOnly]="!canEditPhone()"
+        />
+
+        @if (
+          phoneControl.hasError('required') &&
+          phoneControl.touched
+          ) {
+          <small class="field-error">
+            Il numero di telefono è obbligatorio.
+          </small>
+        }
+
+        @if (saveError(); as message) {
+          <p
+            class="form-message form-message--error"
+            role="alert"
+          >
+            {{ message }}
+          </p>
+        }
+
+        @if (successMessage(); as message) {
+          <p
+            class="form-message form-message--success"
+            role="status"
+          >
+            {{ message }}
+          </p>
+        }
+
+        @if (canEditPhone()) {
+          <button
+            class="save-button"
+            type="submit"
+            [disabled]="
+              saving() ||
+              profileForm.invalid ||
+              profileForm.pristine
+            "
+          >
+            {{
+              saving()
+                ? 'Salvataggio...'
+                : 'Salva modifiche'
+            }}
+          </button>
+        }
+      </form>
+    </section>
+  }
+</main>

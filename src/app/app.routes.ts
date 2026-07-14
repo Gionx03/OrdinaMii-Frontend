@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from './core/auth/auth-guard';
+
 export const routes: Routes = [
   {
     path: '',
@@ -11,6 +13,13 @@ export const routes: Routes = [
     title: 'Menu | OrdinaMii',
     loadComponent: () =>
       import('./features/menu/menu-page/menu-page').then(({ MenuPage }) => MenuPage),
+  },
+  {
+    path: 'profile',
+    title: 'Area personale | OrdinaMii',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/profile/profile-page/profile-page').then(({ ProfilePage }) => ProfilePage),
   },
   {
     path: 'forbidden',

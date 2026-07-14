@@ -20,6 +20,16 @@
       >
         Menu
       </a>
+
+      @if (authenticated()) {
+        <a
+          routerLink="/profile"
+          routerLinkActive="navigation__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Profilo
+        </a>
+      }
     </nav>
 
     <div class="session-actions">
