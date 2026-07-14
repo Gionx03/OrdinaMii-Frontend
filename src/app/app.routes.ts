@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
-import { authGuard } from './core/auth/auth-guard';
 import { APP_ROLE } from './core/auth/app-role';
+import { authGuard } from './core/auth/auth-guard';
 import { roleGuard } from './core/auth/role-guard';
 
 export const routes: Routes = [
@@ -29,6 +29,24 @@ export const routes: Routes = [
     canActivate: [roleGuard(APP_ROLE.CLIENTE)],
     loadComponent: () =>
       import('./features/cart/cart-page/cart-page').then(({ CartPage }) => CartPage),
+  },
+  {
+    path: 'checkout',
+    title: 'Conferma ordine | OrdinaMii',
+    canActivate: [roleGuard(APP_ROLE.CLIENTE)],
+    loadComponent: () =>
+      import('./features/checkout/checkout-page/checkout-page').then(
+        ({ CheckoutPage }) => CheckoutPage,
+      ),
+  },
+  {
+    path: 'my-orders',
+    title: 'I miei ordini | OrdinaMii',
+    canActivate: [roleGuard(APP_ROLE.CLIENTE)],
+    loadComponent: () =>
+      import('./features/orders/my-orders-page/my-orders-page').then(
+        ({ MyOrdersPage }) => MyOrdersPage,
+      ),
   },
   {
     path: 'forbidden',

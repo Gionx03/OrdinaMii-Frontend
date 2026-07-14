@@ -278,6 +278,19 @@
 
   .cart-summary {
     position: static;
+    a.cart-summary__checkout-link {
+      border-color: #a64b2a;
+      background-color: #a64b2a;
+      color: #ffffff;
+
+      &:hover {
+        background-color: #843b21;
+      }
+    }
+
+    &__menu-link {
+      margin-top: 10px;
+    }
   }
 }
 

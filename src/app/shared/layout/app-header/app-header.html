@@ -5,7 +5,13 @@
       routerLink="/menu"
       aria-label="OrdinaMii - Vai al menu"
     >
-      <span class="brand__mark" aria-hidden="true">O</span>
+      <span
+        class="brand__mark"
+        aria-hidden="true"
+      >
+        O
+      </span>
+
       <span>OrdinaMii</span>
     </a>
 
@@ -30,7 +36,16 @@
           Profilo
         </a>
       }
+
       @if (isCustomer()) {
+        <a
+          routerLink="/my-orders"
+          routerLinkActive="navigation__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          I miei ordini
+        </a>
+
         <a
           class="cart-indicator"
           routerLink="/cart"
@@ -38,16 +53,16 @@
           data-cart-target
           aria-live="polite"
           [attr.aria-label]="
-          'Carrello, ' +
-          cartQuantity() +
-          ' articoli'
+            'Carrello, ' +
+            cartQuantity() +
+            ' articoli'
           "
-              >
-                Carrello
+        >
+          Carrello
 
-                <span class="cart-indicator__badge">
-          {{ cartQuantity() }}
-        </span>
+          <span class="cart-indicator__badge">
+            {{ cartQuantity() }}
+          </span>
         </a>
       }
     </nav>
@@ -64,21 +79,35 @@
         </span>
 
         <button
-          class="session-button session-button--secondary"
+          class="
+            session-button
+            session-button--secondary
+          "
           type="button"
           [disabled]="actionPending()"
           (click)="logout()"
         >
-          {{ actionPending() ? 'Attendi...' : 'Esci' }}
+          {{
+            actionPending()
+              ? 'Attendi...'
+              : 'Esci'
+          }}
         </button>
       } @else {
         <button
-          class="session-button session-button--primary"
+          class="
+            session-button
+            session-button--primary
+          "
           type="button"
           [disabled]="actionPending()"
           (click)="login()"
         >
-          {{ actionPending() ? 'Attendi...' : 'Accedi' }}
+          {{
+            actionPending()
+              ? 'Attendi...'
+              : 'Accedi'
+          }}
         </button>
       }
     </div>

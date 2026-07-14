@@ -1,0 +1,291 @@
+<main class="checkout-page">
+  <header class="checkout-page__header">
+    <span class="checkout-page__eyebrow">
+      Conferma ordine
+    </span>
+
+    <h1>Checkout</h1>
+
+    <p>
+      Scegli come ricevere il tuo ordine e controlla
+      il riepilogo.
+    </p>
+  </header>
+
+  @if (createdOrder(); as order) {
+    <section
+      class="order-success"
+      role="status"
+    >
+      <div
+        class="order-success__icon"
+        aria-hidden="true"
+      >
+        ✓
+      </div>
+
+      <span>Ordine ricevuto</span>
+
+      <h2>
+        Grazie, il tuo ordine è stato creato.
+      </h2>
+
+      <p class="order-success__id">
+        Codice ordine: {{ order.id }}
+      </p>
+
+      <dl>
+        <div>
+          <dt>Tipo</dt>
+
+          <dd>
+            {{
+              order.orderType ===
+              orderType.TAKE_AWAY
+                ? 'Asporto'
+                : 'Al tavolo'
+            }}
+          </dd>
+        </div>
+
+        @if (order.table; as table) {
+          <div>
+            <dt>Tavolo</dt>
+            <dd>Numero {{ table.number }}</dd>
+          </div>
+        }
+
+        <div>
+          <dt>Totale</dt>
+
+          <dd>
+            {{
+              order.total
+                | currency:
+                'EUR' :
+                'symbol' :
+                '1.2-2'
+            }}
+          </dd>
+        </div>
+      </dl>
+
+      <a routerLink="/my-orders">
+        Visualizza i miei ordini
+      </a>
+    </section>
+  } @else if (empty()) {
+    <section class="empty-checkout">
+      <h2>Non ci sono piatti da ordinare</h2>
+
+      <p>
+        Aggiungi almeno un piatto prima di procedere
+        al checkout.
+      </p>
+
+      <a routerLink="/menu">
+        Vai al menu
+      </a>
+    </section>
+  } @else {
+    <form
+      class="checkout-layout"
+      [formGroup]="checkoutForm"
+      (ngSubmit)="submitOrder()"
+    >
+      <section class="checkout-form-card">
+        <h2>Come vuoi ricevere l’ordine?</h2>
+
+        <div class="order-types">
+          <label
+            class="order-type"
+            [class.order-type--selected]="
+              selectedOrderType() ===
+              orderType.TAKE_AWAY
+            "
+          >
+            <input
+              type="radio"
+              formControlName="orderType"
+              [value]="orderType.TAKE_AWAY"
+            />
+
+            <span>
+              <strong>Asporto</strong>
+
+              <small>
+                Ritira l’ordine al ristorante.
+              </small>
+            </span>
+          </label>
+
+          <label
+            class="order-type"
+            [class.order-type--selected]="
+              selectedOrderType() ===
+              orderType.ON_THE_TABLE
+            "
+          >
+            <input
+              type="radio"
+              formControlName="orderType"
+              [value]="orderType.ON_THE_TABLE"
+            />
+
+            <span>
+              <strong>Al tavolo</strong>
+
+              <small>
+                Ricevi l’ordine al tavolo selezionato.
+              </small>
+            </span>
+          </label>
+        </div>
+
+        @if (tableOrderSelected()) {
+          <div class="table-selection">
+            <label for="tableId">
+              Tavolo
+            </label>
+
+            @if (loadingTables()) {
+              <p>Caricamento dei tavoli...</p>
+            } @else if (tablesError(); as message) {
+              <div
+                class="table-error"
+                role="alert"
+              >
+                <p>{{ message }}</p>
+
+                <button
+                  type="button"
+                  (click)="loadTables()"
+                >
+                  Riprova
+                </button>
+              </div>
+            } @else {
+              <select
+                id="tableId"
+                formControlName="tableId"
+              >
+                <option
+                  value=""
+                  disabled
+                >
+                  Seleziona un tavolo
+                </option>
+
+                @for (
+                  table of tables();
+                  track table.id
+                  ) {
+                  <option [value]="table.id">
+                    Tavolo {{ table.number }} —
+                    {{ table.seats }} posti
+                  </option>
+                }
+              </select>
+
+              @if (tables().length === 0) {
+                <p class="field-error">
+                  Non ci sono tavoli attivi.
+                </p>
+              } @else if (
+                tableIdControl.hasError('required') &&
+                tableIdControl.touched
+                ) {
+                <p class="field-error">
+                  Seleziona un tavolo.
+                </p>
+              }
+            }
+          </div>
+        }
+
+        <a
+          class="back-link"
+          routerLink="/cart"
+        >
+          ← Torna al carrello
+        </a>
+      </section>
+
+      <aside class="checkout-summary">
+        <h2>Riepilogo</h2>
+
+        <ul>
+          @for (
+            item of items();
+            track item.dish.id
+            ) {
+            <li>
+              <span>
+                {{ item.quantity }} ×
+                {{ item.dish.name }}
+              </span>
+
+              <strong>
+                {{
+                  item.dish.price * item.quantity
+                    | currency:
+                    'EUR' :
+                    'symbol' :
+                    '1.2-2'
+                }}
+              </strong>
+            </li>
+          }
+        </ul>
+
+        <dl>
+          <div>
+            <dt>Piatti</dt>
+            <dd>{{ totalQuantity() }}</dd>
+          </div>
+
+          <div class="checkout-summary__total">
+            <dt>Totale</dt>
+
+            <dd>
+              {{
+                totalPrice()
+                  | currency:
+                  'EUR' :
+                  'symbol' :
+                  '1.2-2'
+              }}
+            </dd>
+          </div>
+        </dl>
+
+        @if (submitError(); as message) {
+          <p
+            class="submit-error"
+            role="alert"
+          >
+            {{ message }}
+          </p>
+        }
+
+        <button
+          type="submit"
+          [disabled]="
+            submitting() ||
+            checkoutForm.invalid ||
+            (
+              tableOrderSelected() &&
+              loadingTables()
+            )
+          "
+        >
+          {{
+            submitting()
+              ? 'Invio in corso...'
+              : 'Conferma ordine'
+          }}
+        </button>
+      </aside>
+    </form>
+  }
+</main>

@@ -1,0 +1,257 @@
+<main class="my-orders-page">
+  <header class="page-header">
+    <span>I tuoi acquisti</span>
+
+    <h1>I miei ordini</h1>
+
+    <p>
+      Controlla lo stato e il contenuto degli ordini
+      che hai effettuato.
+    </p>
+  </header>
+
+  <form
+    class="filters"
+    [formGroup]="filtersForm"
+    (ngSubmit)="applyFilters()"
+  >
+    <div class="filter-field">
+      <label for="order-status">
+        Stato dell’ordine
+      </label>
+
+      <select
+        id="order-status"
+        formControlName="status"
+      >
+        <option value="">
+          Tutti gli stati
+        </option>
+
+        @for (status of statusOptions; track status) {
+          <option [value]="status">
+            {{ statusLabels[status] }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="start-date">
+        A partire dal
+      </label>
+
+      <input
+        id="start-date"
+        type="date"
+        formControlName="startDate"
+      />
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="submit"
+        [disabled]="loading()"
+      >
+        Applica filtri
+      </button>
+
+      <button
+        class="secondary-button"
+        type="button"
+        [disabled]="loading()"
+        (click)="clearFilters()"
+      >
+        Azzera
+      </button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <section
+      class="feedback"
+      aria-live="polite"
+    >
+      <div
+        class="loader"
+        aria-hidden="true"
+      ></div>
+
+      <p>Caricamento degli ordini...</p>
+    </section>
+  } @else if (errorMessage(); as message) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>Qualcosa è andato storto</h2>
+
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="loadOrders(currentPage())"
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (orders().length === 0) {
+    <section class="feedback">
+      <h2>Nessun ordine trovato</h2>
+
+      <p>
+        Non ci sono ordini corrispondenti
+        ai filtri selezionati.
+      </p>
+
+      <a routerLink="/menu">
+        Vai al menu
+      </a>
+    </section>
+  } @else {
+    <div class="results-heading">
+      <p>
+        <strong>{{ totalElements() }}</strong>
+
+        {{
+          totalElements() === 1
+            ? 'ordine trovato'
+            : 'ordini trovati'
+        }}
+      </p>
+    </div>
+
+    <section
+      class="orders-list"
+      aria-label="Elenco dei tuoi ordini"
+    >
+      @for (order of orders(); track order.id) {
+        <article class="order-card">
+          <header class="order-card__header">
+            <div>
+              <span>Ordine</span>
+
+              <h2>#{{ order.id }}</h2>
+
+              <time [attr.datetime]="order.orderDate">
+                {{
+                  order.orderDate
+                    | date: 'dd/MM/yyyy, HH:mm'
+                }}
+              </time>
+            </div>
+
+            <span
+              class="status-badge"
+              [attr.data-status]="order.status"
+            >
+              {{ statusLabels[order.status] }}
+            </span>
+          </header>
+
+          <dl class="order-information">
+            <div>
+              <dt>Servizio</dt>
+
+              <dd>
+                {{ typeLabels[order.orderType] }}
+              </dd>
+            </div>
+
+            @if (order.table; as table) {
+              <div>
+                <dt>Tavolo</dt>
+                <dd>Numero {{ table.number }}</dd>
+              </div>
+            }
+
+            <div>
+              <dt>Pagamento</dt>
+
+              <dd>
+                {{
+                  paymentLabels[
+                    order.paymentStatus
+                    ]
+                }}
+              </dd>
+            </div>
+
+            <div>
+              <dt>Totale</dt>
+
+              <dd>
+                {{
+                  order.total
+                    | currency:
+                    'EUR':
+                    'symbol':
+                    '1.2-2'
+                }}
+              </dd>
+            </div>
+          </dl>
+
+          <div class="order-items">
+            <h3>Piatti ordinati</h3>
+
+            <ul>
+              @for (
+                item of order.items;
+                track item.id
+                ) {
+                <li>
+                  <span>
+                    <strong>
+                      {{ item.quantity }} ×
+                    </strong>
+
+                    {{ item.dish.name }}
+                  </span>
+
+                  <span>
+                    {{
+                      item.unitPrice * item.quantity
+                        | currency:
+                        'EUR':
+                        'symbol':
+                        '1.2-2'
+                    }}
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        </article>
+      }
+    </section>
+
+    @if (totalPages() > 1) {
+      <nav
+        class="pagination"
+        aria-label="Paginazione degli ordini"
+      >
+        <button
+          type="button"
+          [disabled]="firstPage() || loading()"
+          (click)="goToPreviousPage()"
+        >
+          ← Precedente
+        </button>
+
+        <span>
+          Pagina {{ currentPage() + 1 }}
+          di {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          [disabled]="lastPage() || loading()"
+          (click)="goToNextPage()"
+        >
+          Successiva →
+        </button>
+      </nav>
+    }
+  }
+</main>
