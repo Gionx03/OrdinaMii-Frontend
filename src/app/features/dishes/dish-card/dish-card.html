@@ -25,18 +25,39 @@
     </h2>
 
     <p class="dish-card__description">
-      {{ dish().description || 'Descrizione non disponibile.' }}
+      {{
+        dish().description ||
+        'Descrizione non disponibile.'
+      }}
     </p>
 
     <footer class="dish-card__footer">
       <strong class="dish-card__price">
-        {{ dish().price | currency: 'EUR' : 'symbol' : '1.2-2' }}
+        {{
+          dish().price
+            | currency: 'EUR' : 'symbol' : '1.2-2'
+        }}
       </strong>
 
       @if (!dish().available) {
         <span class="dish-card__unavailable">
           Non disponibile
         </span>
+      } @else if (orderingEnabled()) {
+        <button
+          class="dish-card__add-button"
+          [class.dish-card__add-button--added]="
+            addedFeedback()
+          "
+          type="button"
+          (click)="requestAddToCart()"
+        >
+          {{
+            addedFeedback()
+              ? 'Aggiunto ✓'
+              : 'Aggiungi'
+          }}
+        </button>
       }
     </footer>
   </div>

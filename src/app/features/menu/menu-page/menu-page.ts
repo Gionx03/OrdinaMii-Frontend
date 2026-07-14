@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   OnInit,
@@ -10,6 +11,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 
+import { APP_ROLE } from '../../../core/auth/app-role';
+import { AuthService } from '../../../core/auth/auth-service';
+import { CartStore } from '../../cart/cart-store';
 import { Dish, DishCategory, DISH_CATEGORIES, DISH_CATEGORY_LABELS } from '../../dishes/dish';
 import { DishApi } from '../../dishes/dish-api';
 import { DishCard } from '../../dishes/dish-card/dish-card';
@@ -23,6 +27,8 @@ import { DishCard } from '../../dishes/dish-card/dish-card';
 })
 export class MenuPage implements OnInit {
   private readonly dishApi = inject(DishApi);
+  private readonly authService = inject(AuthService);
+  private readonly cartStore = inject(CartStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly pageSize = 12;
 
@@ -38,6 +44,10 @@ export class MenuPage implements OnInit {
 
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
+
+  readonly canOrder = computed(
+    () => this.authService.authenticated() && this.authService.hasRole(APP_ROLE.CLIENTE),
+  );
 
   readonly filtersForm = new FormGroup({
     name: new FormControl('', {
@@ -103,6 +113,10 @@ export class MenuPage implements OnInit {
   clearFilters(): void {
     this.filtersForm.reset();
     this.loadDishes(0);
+  }
+
+  addDishToCart(dish: Dish): void {
+    this.cartStore.addDish(dish);
   }
 
   goToPreviousPage(): void {

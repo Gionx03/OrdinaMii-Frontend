@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/auth/auth-guard';
+import { APP_ROLE } from './core/auth/app-role';
+import { roleGuard } from './core/auth/role-guard';
 
 export const routes: Routes = [
   {
@@ -20,6 +22,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/profile/profile-page/profile-page').then(({ ProfilePage }) => ProfilePage),
+  },
+  {
+    path: 'cart',
+    title: 'Carrello | OrdinaMii',
+    canActivate: [roleGuard(APP_ROLE.CLIENTE)],
+    loadComponent: () =>
+      import('./features/cart/cart-page/cart-page').then(({ CartPage }) => CartPage),
   },
   {
     path: 'forbidden',

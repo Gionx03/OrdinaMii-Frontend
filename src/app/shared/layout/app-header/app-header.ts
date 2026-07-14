@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
+import { APP_ROLE } from '../../../core/auth/app-role';
 import { AuthService } from '../../../core/auth/auth-service';
+import { CartStore } from '../../../features/cart/cart-store';
 
 @Component({
   selector: 'app-header',
@@ -12,9 +14,17 @@ import { AuthService } from '../../../core/auth/auth-service';
 })
 export class AppHeader {
   private readonly authService = inject(AuthService);
+  private readonly cartStore = inject(CartStore);
 
   readonly authenticated = this.authService.authenticated;
+
   readonly actionPending = signal(false);
+
+  readonly cartQuantity = this.cartStore.totalQuantity;
+
+  readonly isCustomer = computed(
+    () => this.authService.authenticated() && this.authService.hasRole(APP_ROLE.CLIENTE),
+  );
 
   async login(): Promise<void> {
     if (this.actionPending()) {

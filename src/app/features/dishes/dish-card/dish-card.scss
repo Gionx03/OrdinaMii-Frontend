@@ -91,4 +91,60 @@
     font-size: 0.75rem;
     font-weight: 700;
   }
+  &__add-button {
+    min-width: 104px;
+    min-height: 38px;
+    border: 0;
+    border-radius: 9px;
+    background-color: #a64b2a;
+    padding: 0 15px;
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      background-color 180ms ease,
+      transform 180ms ease;
+
+    &:hover {
+      background-color: #843b21;
+    }
+
+    &:active {
+      transform: scale(0.94);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgb(166 75 42 / 25%);
+      outline-offset: 2px;
+    }
+
+    &--added {
+      background-color: #267148;
+      animation: added-to-cart 420ms ease-out;
+
+      &:hover {
+        background-color: #267148;
+      }
+    }
+  }
 }
+@keyframes added-to-cart {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.12) rotate(-2deg);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dish-card__add-button--added {
+    animation: none;
+  }
+}
+

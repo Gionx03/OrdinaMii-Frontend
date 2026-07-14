@@ -1,0 +1,177 @@
+<main class="cart-page">
+  <header class="cart-page__header">
+    <span class="cart-page__eyebrow">
+      Il tuo ordine
+    </span>
+
+    <h1>Carrello</h1>
+
+    <p>
+      Controlla i piatti e le quantità prima di continuare.
+    </p>
+  </header>
+
+  @if (empty()) {
+    <section class="empty-cart">
+      <div
+        class="empty-cart__icon"
+        aria-hidden="true"
+      >
+        🛒
+      </div>
+
+      <h2>Il carrello è vuoto</h2>
+
+      <p>
+        Scegli uno o più piatti dal menu per iniziare
+        il tuo ordine.
+      </p>
+
+      <a routerLink="/menu">
+        Vai al menu
+      </a>
+    </section>
+  } @else {
+    <div class="cart-layout">
+      <section
+        class="cart-list"
+        aria-label="Piatti nel carrello"
+      >
+        <header class="cart-list__header">
+          <div>
+            <h2>Piatti selezionati</h2>
+            <span>
+              {{ totalQuantity() }} articoli
+            </span>
+          </div>
+
+          <button
+            type="button"
+            (click)="clearCart()"
+          >
+            Svuota carrello
+          </button>
+        </header>
+
+        @for (item of items(); track item.dish.id) {
+          <article class="cart-item">
+            <div class="cart-item__details">
+              <span class="cart-item__category">
+                {{
+                  categoryLabels[
+                    item.dish.category
+                    ]
+                }}
+              </span>
+
+              <h2>{{ item.dish.name }}</h2>
+
+              <span class="cart-item__unit-price">
+                {{
+                  item.dish.price
+                    | currency:
+                    'EUR' :
+                    'symbol' :
+                    '1.2-2'
+                }}
+                ciascuno
+              </span>
+            </div>
+
+            <div class="quantity-control">
+              <button
+                type="button"
+                [attr.aria-label]="
+                  'Diminuisci la quantità di ' +
+                  item.dish.name
+                "
+                (click)="
+                  decreaseQuantity(item.dish.id)
+                "
+              >
+                −
+              </button>
+
+              <output
+                [attr.aria-label]="
+                  'Quantità di ' + item.dish.name
+                "
+              >
+                {{ item.quantity }}
+              </output>
+
+              <button
+                type="button"
+                [attr.aria-label]="
+                  'Aumenta la quantità di ' +
+                  item.dish.name
+                "
+                (click)="
+                  increaseQuantity(item.dish.id)
+                "
+              >
+                +
+              </button>
+            </div>
+
+            <div class="cart-item__total">
+              <strong>
+                {{
+                  item.dish.price * item.quantity
+                    | currency:
+                    'EUR' :
+                    'symbol' :
+                    '1.2-2'
+                }}
+              </strong>
+
+              <button
+                type="button"
+                (click)="removeDish(item.dish.id)"
+              >
+                Rimuovi
+              </button>
+            </div>
+          </article>
+        }
+      </section>
+
+      <aside
+        class="cart-summary"
+        aria-label="Riepilogo del carrello"
+      >
+        <h2>Riepilogo</h2>
+
+        <dl>
+          <div>
+            <dt>Quantità totale</dt>
+            <dd>{{ totalQuantity() }}</dd>
+          </div>
+
+          <div class="cart-summary__total">
+            <dt>Totale</dt>
+
+            <dd>
+              {{
+                totalPrice()
+                  | currency:
+                  'EUR' :
+                  'symbol' :
+                  '1.2-2'
+              }}
+            </dd>
+          </div>
+        </dl>
+
+        <p>
+          Nel prossimo passaggio potrai scegliere
+          il tipo di ordine.
+        </p>
+
+        <a routerLink="/menu">
+          Aggiungi altri piatti
+        </a>
+      </aside>
+    </div>
+  }
+</main>

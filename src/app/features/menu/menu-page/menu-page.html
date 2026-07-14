@@ -95,7 +95,11 @@
       aria-label="Piatti disponibili"
     >
       @for (dish of dishes(); track dish.id) {
-        <app-dish-card [dish]="dish" />
+        <app-dish-card
+          [dish]="dish"
+          [orderingEnabled]="canOrder()"
+          (addToCart)="addDishToCart($event)"
+        />
       }
     </section>
 

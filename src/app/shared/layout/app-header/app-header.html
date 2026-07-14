@@ -30,6 +30,26 @@
           Profilo
         </a>
       }
+      @if (isCustomer()) {
+        <a
+          class="cart-indicator"
+          routerLink="/cart"
+          routerLinkActive="navigation__link--active"
+          data-cart-target
+          aria-live="polite"
+          [attr.aria-label]="
+          'Carrello, ' +
+          cartQuantity() +
+          ' articoli'
+          "
+              >
+                Carrello
+
+                <span class="cart-indicator__badge">
+          {{ cartQuantity() }}
+        </span>
+        </a>
+      }
     </nav>
 
     <div class="session-actions">
