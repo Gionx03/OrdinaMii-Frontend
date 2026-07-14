@@ -1,0 +1,125 @@
+:host {
+  display: block;
+  position: sticky;
+  z-index: 100;
+  top: 0;
+}
+
+.app-header {
+  border-bottom: 1px solid #e7ded2;
+  background-color: rgb(255 255 255 / 94%);
+  box-shadow: 0 4px 18px rgb(61 45 32 / 5%);
+  backdrop-filter: blur(12px);
+
+  &__inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: min(1200px, calc(100% - 32px));
+    min-height: 72px;
+    margin: 0 auto;
+  }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 10px;
+  color: #2f2924;
+  font-size: 1.15rem;
+  font-weight: 800;
+
+  &__mark {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 11px;
+    background-color: #a64b2a;
+    color: #ffffff;
+  }
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  a {
+    border-radius: 9px;
+    padding: 9px 13px;
+    color: #665d55;
+    font-weight: 700;
+
+    &:hover,
+    &.navigation__link--active {
+      background-color: #f4ece4;
+      color: #a64b2a;
+    }
+  }
+}
+
+.session-actions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 12px;
+}
+
+.session-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #5c554e;
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #2d8a53;
+  }
+}
+
+.session-button {
+  min-height: 40px;
+  border-radius: 9px;
+  padding: 0 16px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  &--primary {
+    border: 1px solid #a64b2a;
+    background-color: #a64b2a;
+    color: #ffffff;
+  }
+
+  &--secondary {
+    border: 1px solid #d8cec2;
+    background-color: #ffffff;
+    color: #4f473f;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-header__inner {
+    grid-template-columns: auto 1fr auto;
+    width: min(100% - 24px, 1200px);
+  }
+
+  .brand > span:last-child,
+  .session-status {
+    display: none;
+  }
+
+  .navigation {
+    justify-self: center;
+  }
+}

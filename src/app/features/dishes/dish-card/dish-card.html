@@ -1,0 +1,43 @@
+<article class="dish-card">
+  <div class="dish-card__image-container">
+    @if (imageUrl(); as source) {
+      <img
+        class="dish-card__image"
+        [src]="source"
+        [alt]="dish().name"
+        loading="lazy"
+        (error)="markImageAsUnavailable()"
+      />
+    } @else {
+      <div class="dish-card__placeholder">
+        <span>Nessuna immagine</span>
+      </div>
+    }
+  </div>
+
+  <div class="dish-card__content">
+    <span class="dish-card__category">
+      {{ categoryLabel() }}
+    </span>
+
+    <h2 class="dish-card__name">
+      {{ dish().name }}
+    </h2>
+
+    <p class="dish-card__description">
+      {{ dish().description || 'Descrizione non disponibile.' }}
+    </p>
+
+    <footer class="dish-card__footer">
+      <strong class="dish-card__price">
+        {{ dish().price | currency: 'EUR' : 'symbol' : '1.2-2' }}
+      </strong>
+
+      @if (!dish().available) {
+        <span class="dish-card__unavailable">
+          Non disponibile
+        </span>
+      }
+    </footer>
+  </div>
+</article>

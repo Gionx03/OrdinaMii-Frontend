@@ -1,0 +1,56 @@
+<header class="app-header">
+  <div class="app-header__inner">
+    <a
+      class="brand"
+      routerLink="/menu"
+      aria-label="OrdinaMii - Vai al menu"
+    >
+      <span class="brand__mark" aria-hidden="true">O</span>
+      <span>OrdinaMii</span>
+    </a>
+
+    <nav
+      class="navigation"
+      aria-label="Navigazione principale"
+    >
+      <a
+        routerLink="/menu"
+        routerLinkActive="navigation__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Menu
+      </a>
+    </nav>
+
+    <div class="session-actions">
+      @if (authenticated()) {
+        <span class="session-status">
+          <span
+            class="session-status__dot"
+            aria-hidden="true"
+          ></span>
+
+          Connesso
+        </span>
+
+        <button
+          class="session-button session-button--secondary"
+          type="button"
+          [disabled]="actionPending()"
+          (click)="logout()"
+        >
+          {{ actionPending() ? 'Attendi...' : 'Esci' }}
+        </button>
+      } @else {
+        <button
+          class="session-button session-button--primary"
+          type="button"
+          [disabled]="actionPending()"
+          (click)="login()"
+        >
+          {{ actionPending() ? 'Attendi...' : 'Accedi' }}
+        </button>
+      }
+    </div>
+  </div>
+</header>

@@ -1,19 +1,129 @@
 <main class="menu-page">
   <header class="menu-page__header">
-    <p class="menu-page__eyebrow">OrdinaMii</p>
-    <h1>Il nostro menu</h1>
-    <p>Scopri i piatti disponibili e prepara il tuo ordine.</p>
-  </header>
+    <span class="menu-page__eyebrow">OrdinaMii</span>
 
-  <section
-    class="menu-page__placeholder"
-    aria-labelledby="menu-placeholder-title"
-  >
-    <h2 id="menu-placeholder-title">Menu in preparazione</h2>
+    <h1>Il nostro menu</h1>
 
     <p>
-      Nel prossimo passaggio collegheremo questa pagina all’endpoint dei
-      piatti.
+      Cerca un piatto oppure seleziona una categoria.
     </p>
-  </section>
+  </header>
+
+  <form
+    class="filters"
+    [formGroup]="filtersForm"
+    (ngSubmit)="applyFilters()"
+  >
+    <label class="filters__field">
+      <span>Nome del piatto</span>
+
+      <input
+        type="search"
+        formControlName="name"
+        placeholder="Es. Carbonara"
+      />
+    </label>
+
+    <label class="filters__field">
+      <span>Categoria</span>
+
+      <select formControlName="category">
+        <option value="">Tutte le categorie</option>
+
+        @for (category of categories; track category) {
+          <option [value]="category">
+            {{ categoryLabels[category] }}
+          </option>
+        }
+      </select>
+    </label>
+
+    <div class="filters__actions">
+      <button
+        class="button button--primary"
+        type="submit"
+        [disabled]="loading()"
+      >
+        Cerca
+      </button>
+
+      <button
+        class="button button--secondary"
+        type="button"
+        [disabled]="loading()"
+        (click)="clearFilters()"
+      >
+        Azzera
+      </button>
+    </div>
+  </form>
+
+  @if (!loading() && !errorMessage()) {
+    <p class="menu-page__count">
+      {{ totalElements() }} piatti trovati
+    </p>
+  }
+
+  @if (loading()) {
+    <section class="state-card" aria-live="polite">
+      <p>Caricamento del menu...</p>
+    </section>
+  } @else if (errorMessage(); as message) {
+    <section
+      class="state-card state-card--error"
+      role="alert"
+    >
+      <p>{{ message }}</p>
+
+      <button
+        class="button button--primary"
+        type="button"
+        (click)="loadDishes(currentPage())"
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (dishes().length === 0) {
+    <section class="state-card">
+      <p>
+        Non ci sono piatti corrispondenti ai filtri selezionati.
+      </p>
+    </section>
+  } @else {
+    <section
+      class="dish-grid"
+      aria-label="Piatti disponibili"
+    >
+      @for (dish of dishes(); track dish.id) {
+        <app-dish-card [dish]="dish" />
+      }
+    </section>
+
+    <nav
+      class="pagination"
+      aria-label="Paginazione del menu"
+    >
+      <button
+        class="button button--secondary"
+        type="button"
+        [disabled]="firstPage() || loading()"
+        (click)="goToPreviousPage()"
+      >
+        ← Precedente
+      </button>
+
+      <span>
+        Pagina {{ currentPage() + 1 }} di {{ totalPages() }}
+      </span>
+
+      <button
+        class="button button--secondary"
+        type="button"
+        [disabled]="lastPage() || loading()"
+        (click)="goToNextPage()"
+      >
+        Successiva →
+      </button>
+    </nav>
+  }
 </main>
