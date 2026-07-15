@@ -1,0 +1,124 @@
+@use '../create-staff-order-page/create-staff-order-page';
+
+.blocked-order {
+  border: 1px solid #e3d9ce;
+  border-radius: 16px;
+  background-color: #fff;
+  padding: 46px 26px;
+  box-shadow:
+    0 9px 26px
+    rgb(61 45 32 / 7%);
+  text-align: center;
+
+  > span {
+    color: #963737;
+    font-size: 0.74rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 9px 0 12px;
+    color: #302a25;
+  }
+
+  p {
+    max-width: 680px;
+    margin: 7px auto;
+    color: #726960;
+    line-height: 1.55;
+  }
+
+  a {
+    display: inline-block;
+    margin-top: 19px;
+    border-radius: 9px;
+    background-color: #a64b2a;
+    padding: 11px 16px;
+    color: #fff;
+    font-weight: 750;
+  }
+}
+
+.current-order-info {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  border: 1px solid #e3d9ce;
+  border-radius: 13px;
+  background-color: #eee8e1;
+  padding: 14px;
+
+  div {
+    min-width: 0;
+    border-radius: 9px;
+    background-color: #fff;
+    padding: 12px;
+  }
+
+  span {
+    display: block;
+    margin-bottom: 5px;
+    color: #81776e;
+    font-size: 0.67rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  strong {
+    display: block;
+    overflow-wrap: anywhere;
+    color: #403832;
+    font-size: 0.82rem;
+  }
+}
+
+.dish-card--unavailable {
+  border-style: dashed;
+  background-color: #f2efec;
+  opacity: 0.82;
+}
+
+.unavailable-label,
+.unavailable-line {
+  display: block;
+  margin-top: 6px;
+  color: #963737;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.add-dish-button:disabled,
+.quantity-control button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.availability-warning {
+  margin: 0 0 13px;
+  border: 1px solid #e3c282;
+  border-radius: 9px;
+  background-color: #fff4d8;
+  padding: 10px 12px;
+  color: #805b18;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.cancel-edit-link {
+  display: block;
+  margin-top: 11px;
+  color: #6f655c;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 650px) {
+  .current-order-info {
+    grid-template-columns: 1fr;
+  }
+}

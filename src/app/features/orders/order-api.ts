@@ -4,7 +4,18 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { PageResponse } from '../../core/http/page-response';
-import { CreateMyOrderRequest, MyOrderFilters, Order } from './order';
+import {
+  CreateMyOrderRequest,
+  MyOrderFilters,
+  Order,
+  OrderStatus,
+  PaymentStatus,
+  StaffOrderFilters,
+  UpdateOrderStatusPayload,
+  UpdatePaymentStatusPayload,
+  CreateStaffOrderRequest,
+  UpdateStaffOrderRequest,
+} from './order';
 
 @Injectable({
   providedIn: 'root',
@@ -12,10 +23,18 @@ import { CreateMyOrderRequest, MyOrderFilters, Order } from './order';
 export class OrderApi {
   private readonly http = inject(HttpClient);
 
-  private readonly myOrdersUrl = `${environment.apiBaseUrl.replace(/\/+$/, '')}/me/orders`;
+  private readonly apiBaseUrl = environment.apiBaseUrl.replace(/\/+$/, '');
+
+  private readonly ordersUrl = `${this.apiBaseUrl}/orders`;
+
+  private readonly myOrdersUrl = `${this.apiBaseUrl}/me/orders`;
 
   createMyOrder(request: CreateMyOrderRequest): Observable<Order> {
     return this.http.post<Order>(this.myOrdersUrl, request);
+  }
+
+  createOrder(request: CreateStaffOrderRequest): Observable<Order> {
+    return this.http.post<Order>(this.ordersUrl, request);
   }
 
   getMyOrders(filters: MyOrderFilters = {}): Observable<PageResponse<Order>> {
@@ -33,5 +52,50 @@ export class OrderApi {
     }
 
     return this.http.get<PageResponse<Order>>(this.myOrdersUrl, { params });
+  }
+
+  getOrders(filters: StaffOrderFilters = {}): Observable<PageResponse<Order>> {
+    let params = new HttpParams()
+      .set('page', filters.page ?? 0)
+      .set('size', filters.size ?? 10)
+      .set('sort', filters.sort ?? 'orderDate,desc');
+
+    if (filters.status) {
+      params = params.set('status', filters.status);
+    }
+
+    if (filters.customerId) {
+      params = params.set('customer_id', filters.customerId);
+    }
+
+    if (filters.date) {
+      params = params.set('data', filters.date);
+    }
+
+    return this.http.get<PageResponse<Order>>(this.ordersUrl, { params });
+  }
+
+  updateOrderStatus(orderId: string, status: OrderStatus): Observable<Order> {
+    const request: UpdateOrderStatusPayload = {
+      status,
+    };
+
+    return this.http.put<Order>(`${this.ordersUrl}/${orderId}/status`, request);
+  }
+
+  updatePaymentStatus(orderId: string, paymentStatus: PaymentStatus): Observable<Order> {
+    const request: UpdatePaymentStatusPayload = {
+      paymentStatus,
+    };
+
+    return this.http.put<Order>(`${this.ordersUrl}/${orderId}/payment-status`, request);
+  }
+
+  getOrderById(orderId: string): Observable<Order> {
+    return this.http.get<Order>(`${this.ordersUrl}/${encodeURIComponent(orderId)}`);
+  }
+
+  updateOrder(orderId: string, request: UpdateStaffOrderRequest): Observable<Order> {
+    return this.http.put<Order>(`${this.ordersUrl}/${encodeURIComponent(orderId)}`, request);
   }
 }

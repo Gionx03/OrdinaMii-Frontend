@@ -17,6 +17,8 @@ export const ORDER_STATUS = {
 
 export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
 
+export const ORDER_STATUSES: readonly OrderStatus[] = Object.values(ORDER_STATUS);
+
 export const PAYMENT_STATUS = {
   NOT_PAID: 'NOT_PAID',
   PENDING: 'PENDING',
@@ -36,6 +38,18 @@ export interface CreateMyOrderRequest {
   readonly orderType: OrderType;
   readonly tableId: string | null;
   readonly items: CreateOrderItemRequest[];
+}
+export interface CreateStaffOrderRequest extends CreateMyOrderRequest {
+  readonly userId: string;
+}
+export type UpdateStaffOrderRequest = CreateStaffOrderRequest;
+
+export interface UpdateOrderStatusPayload {
+  readonly status: OrderStatus;
+}
+
+export interface UpdatePaymentStatusPayload {
+  readonly paymentStatus: PaymentStatus;
 }
 
 export interface OrderUser {
@@ -74,6 +88,15 @@ export interface Order {
 export interface MyOrderFilters {
   readonly status?: OrderStatus;
   readonly startDate?: string;
+  readonly page?: number;
+  readonly size?: number;
+  readonly sort?: string;
+}
+
+export interface StaffOrderFilters {
+  readonly status?: OrderStatus;
+  readonly customerId?: string;
+  readonly date?: string;
   readonly page?: number;
   readonly size?: number;
   readonly sort?: string;

@@ -1,0 +1,388 @@
+<main class="manage-dishes-page">
+  <header class="page-header">
+    <div>
+      <span>Gestione menu</span>
+      <h1>Gestione piatti</h1>
+      <p>
+        Crea, modifica e controlla la disponibilità dei piatti.
+      </p>
+    </div>
+
+    <button type="button" (click)="startCreate()">
+      Nuovo piatto
+    </button>
+  </header>
+
+  @if (editorOpen()) {
+    <section
+      class="dish-editor"
+      aria-labelledby="dish-editor-title"
+    >
+      <header>
+        <div>
+          <span>
+            {{
+              editingDish()
+                ? 'Modifica piatto'
+                : 'Nuovo piatto'
+            }}
+          </span>
+
+          <h2 id="dish-editor-title">
+            {{
+              editingDish()?.name ||
+              'Inserisci i dati del piatto'
+            }}
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          [disabled]="saving()"
+          (click)="closeEditor()"
+        >
+          Chiudi
+        </button>
+      </header>
+
+      <form
+        [formGroup]="editorForm"
+        (ngSubmit)="saveDish()"
+      >
+        <div class="form-field">
+          <label for="dish-name">Nome</label>
+
+          <input
+            id="dish-name"
+            type="text"
+            formControlName="name"
+          />
+
+          @if (nameControl.touched && nameControl.invalid) {
+            <small>Il nome è obbligatorio.</small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="dish-price">Prezzo</label>
+
+          <input
+            id="dish-price"
+            type="number"
+            min="0.01"
+            step="0.01"
+            formControlName="price"
+          />
+
+          @if (priceControl.touched && priceControl.invalid) {
+            <small>
+              Inserisci un prezzo maggiore di zero.
+            </small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="dish-category">Categoria</label>
+
+          <select
+            id="dish-category"
+            formControlName="category"
+          >
+            @for (category of categories; track category) {
+              <option [value]="category">
+                {{ categoryLabels[category] }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field form-field--wide">
+          <label for="dish-description">
+            Descrizione
+          </label>
+
+          <textarea
+            id="dish-description"
+            rows="4"
+            formControlName="description"
+          ></textarea>
+        </div>
+
+        <div class="form-field form-field--wide">
+          <label for="dish-image-url">
+            URL immagine
+          </label>
+
+          <input
+            id="dish-image-url"
+            type="text"
+            formControlName="imageUrl"
+            placeholder="/images/dishes/nome-piatto.jpg"
+          />
+        </div>
+
+        <label class="availability-field">
+          <input
+            type="checkbox"
+            formControlName="available"
+          />
+
+          <span>Piatto disponibile nel menu</span>
+        </label>
+
+        <div class="editor-actions">
+          <button
+            class="secondary-button"
+            type="button"
+            [disabled]="saving()"
+            (click)="closeEditor()"
+          >
+            Annulla
+          </button>
+
+          <button
+            type="submit"
+            [disabled]="saving()"
+          >
+            {{
+              saving()
+                ? 'Salvataggio...'
+                : 'Salva piatto'
+            }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <form
+    class="filters"
+    [formGroup]="filtersForm"
+    (ngSubmit)="applyFilters()"
+  >
+    <div class="filter-field form-field">
+      <label for="dish-filter-name">Nome</label>
+
+      <input
+        id="dish-filter-name"
+        type="search"
+        formControlName="name"
+      />
+    </div>
+
+    <div class="filter-field form-field">
+      <label for="dish-filter-category">
+        Categoria
+      </label>
+
+      <select
+        id="dish-filter-category"
+        formControlName="category"
+      >
+        <option value="">Tutte le categorie</option>
+
+        @for (category of categories; track category) {
+          <option [value]="category">
+            {{ categoryLabels[category] }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-field form-field">
+      <label for="dish-filter-available">
+        Disponibilità
+      </label>
+
+      <select
+        id="dish-filter-available"
+        formControlName="available"
+      >
+        <option value="true">Disponibili</option>
+        <option value="false">Non disponibili</option>
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="submit"
+        [disabled]="loading()"
+      >
+        Applica filtri
+      </button>
+
+      <button
+        class="secondary-button"
+        type="button"
+        [disabled]="loading()"
+        (click)="clearFilters()"
+      >
+        Azzera
+      </button>
+    </div>
+  </form>
+
+  @if (actionError(); as message) {
+    <p class="action-error" role="alert">
+      {{ message }}
+    </p>
+  }
+
+  @if (loading()) {
+    <section class="feedback" aria-live="polite">
+      <div class="loader" aria-hidden="true"></div>
+      <p>Caricamento dei piatti...</p>
+    </section>
+  } @else if (errorMessage(); as message) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>Impossibile caricare i piatti</h2>
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="loadDishes(currentPage())"
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (dishes().length === 0) {
+    <section class="feedback">
+      <h2>Nessun piatto trovato</h2>
+
+      <p>
+        Non ci sono piatti corrispondenti ai filtri
+        selezionati.
+      </p>
+    </section>
+  } @else {
+    <p class="results-heading">
+      <strong>{{ totalElements() }}</strong>
+
+      {{
+        totalElements() === 1
+          ? 'piatto trovato'
+          : 'piatti trovati'
+      }}
+    </p>
+
+    <section
+      class="dishes-grid"
+      aria-label="Elenco piatti"
+    >
+      @for (dish of dishes(); track dish.id) {
+        <article class="dish-management-card">
+          <div class="dish-management-card__image">
+            @if (
+              resolveImageUrl(dish.imageUrl);
+              as imageSource
+              ) {
+              <img
+                [src]="imageSource"
+                [alt]="dish.name"
+                loading="lazy"
+                (error)="hideBrokenImage($event)"
+              />
+            } @else {
+              <span>Nessuna immagine</span>
+            }
+          </div>
+
+          <div class="dish-management-card__content">
+            <header>
+              <span>
+                {{ categoryLabels[dish.category] }}
+              </span>
+
+              <span
+                class="availability-badge"
+                [class.availability-badge--disabled]="
+                  !dish.available
+                "
+              >
+                {{
+                  dish.available
+                    ? 'Disponibile'
+                    : 'Non disponibile'
+                }}
+              </span>
+            </header>
+
+            <h2>{{ dish.name }}</h2>
+
+            <p>
+              {{
+                dish.description ||
+                'Nessuna descrizione.'
+              }}
+            </p>
+
+            <strong>
+              {{
+                dish.price
+                  | currency
+                  : 'EUR'
+                    : 'symbol'
+                    : '1.2-2'
+              }}
+            </strong>
+
+            <footer>
+              <button
+                type="button"
+                (click)="startEdit(dish)"
+              >
+                Modifica
+              </button>
+
+              @if (canDelete() && dish.available) {
+                <button
+                  class="delete-button"
+                  type="button"
+                  [disabled]="deletingDishId() !== null"
+                  (click)="deleteDish(dish)"
+                >
+                  {{
+                    deletingDishId() === dish.id
+                      ? 'Disattivazione...'
+                      : 'Disattiva'
+                  }}
+                </button>
+              }
+            </footer>
+          </div>
+        </article>
+      }
+    </section>
+
+    @if (totalPages() > 1) {
+      <nav
+        class="pagination"
+        aria-label="Paginazione piatti"
+      >
+        <button
+          type="button"
+          [disabled]="firstPage() || loading()"
+          (click)="goToPreviousPage()"
+        >
+          ← Precedente
+        </button>
+
+        <span>
+          Pagina {{ currentPage() + 1 }}
+          di {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          [disabled]="lastPage() || loading()"
+          (click)="goToNextPage()"
+        >
+          Successiva →
+        </button>
+      </nav>
+    }
+  }
+</main>

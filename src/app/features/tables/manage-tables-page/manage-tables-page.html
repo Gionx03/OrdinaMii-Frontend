@@ -1,0 +1,309 @@
+<main class="manage-tables-page">
+  <header class="page-header">
+    <div>
+      <span>Configurazione sala</span>
+      <h1>Gestione tavoli</h1>
+
+      <p>
+        Crea e organizza i tavoli disponibili per le
+        prenotazioni.
+      </p>
+    </div>
+
+    <button type="button" (click)="startCreate()">
+      Nuovo tavolo
+    </button>
+  </header>
+
+  @if (editorOpen()) {
+    <section
+      class="table-editor"
+      aria-labelledby="table-editor-title"
+    >
+      <header>
+        <div>
+          <span>
+            {{
+              editingTable()
+                ? 'Modifica tavolo'
+                : 'Nuovo tavolo'
+            }}
+          </span>
+
+          <h2 id="table-editor-title">
+            {{
+              editingTable()
+                ? 'Tavolo ' + editingTable()?.number
+                : 'Inserisci i dati del tavolo'
+            }}
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          [disabled]="saving()"
+          (click)="closeEditor()"
+        >
+          Chiudi
+        </button>
+      </header>
+
+      @if (editingTable() && !editingTable()?.active) {
+        <p class="editor-note">
+          Questo tavolo è disattivato. Il backend permette
+          di modificarne i dati, ma non dispone ancora di
+          un'operazione per riattivarlo.
+        </p>
+      }
+
+      <form
+        [formGroup]="editorForm"
+        (ngSubmit)="saveTable()"
+      >
+        <div class="form-field">
+          <label for="table-number">
+            Numero tavolo
+          </label>
+
+          <input
+            id="table-number"
+            type="number"
+            min="1"
+            step="1"
+            formControlName="number"
+          />
+
+          @if (
+            numberControl.touched &&
+            numberControl.invalid
+            ) {
+            <small>
+              Inserisci un numero intero maggiore di zero.
+            </small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="table-seats">
+            Numero posti
+          </label>
+
+          <input
+            id="table-seats"
+            type="number"
+            min="1"
+            step="1"
+            formControlName="seats"
+          />
+
+          @if (
+            seatsControl.touched &&
+            seatsControl.invalid
+            ) {
+            <small>
+              Inserisci un numero intero maggiore di zero.
+            </small>
+          }
+        </div>
+
+        <div class="editor-actions">
+          <button
+            class="secondary-button"
+            type="button"
+            [disabled]="saving()"
+            (click)="closeEditor()"
+          >
+            Annulla
+          </button>
+
+          <button
+            type="submit"
+            [disabled]="saving()"
+          >
+            {{
+              saving()
+                ? 'Salvataggio...'
+                : 'Salva tavolo'
+            }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <form
+    class="filters"
+    [formGroup]="filtersForm"
+    (ngSubmit)="applyFilters()"
+  >
+    <div class="form-field">
+      <label for="table-status">
+        Stato dei tavoli
+      </label>
+
+      <select
+        id="table-status"
+        formControlName="active"
+      >
+        <option value="true">Attivi</option>
+        <option value="false">Disattivati</option>
+      </select>
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="loading()"
+    >
+      Applica filtro
+    </button>
+  </form>
+
+  @if (actionError(); as message) {
+    <p class="action-error" role="alert">
+      {{ message }}
+    </p>
+  }
+
+  @if (loading()) {
+    <section class="feedback" aria-live="polite">
+      <div
+        class="loader"
+        aria-hidden="true"
+      ></div>
+
+      <p>Caricamento dei tavoli...</p>
+    </section>
+  } @else if (errorMessage(); as message) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>Impossibile caricare i tavoli</h2>
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="loadTables(currentPage())"
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (tables().length === 0) {
+    <section class="feedback">
+      <h2>Nessun tavolo trovato</h2>
+      <p>Non ci sono tavoli con lo stato selezionato.</p>
+    </section>
+  } @else {
+    <p class="results-heading">
+      <strong>{{ totalElements() }}</strong>
+
+      {{
+        totalElements() === 1
+          ? 'tavolo trovato'
+          : 'tavoli trovati'
+      }}
+    </p>
+
+    <section
+      class="tables-grid"
+      aria-label="Elenco tavoli"
+    >
+      @for (table of tables(); track table.id) {
+        <article class="table-card">
+          <div
+            class="table-card__number"
+            aria-hidden="true"
+          >
+            {{ table.number }}
+          </div>
+
+          <div class="table-card__content">
+            <header>
+              <div>
+                <span>Tavolo</span>
+                <h2>Numero {{ table.number }}</h2>
+              </div>
+
+              <span
+                class="status-badge"
+                [class.status-badge--inactive]="
+                  !table.active
+                "
+              >
+                {{
+                  table.active
+                    ? 'Attivo'
+                    : 'Disattivato'
+                }}
+              </span>
+            </header>
+
+            <p>
+              <strong>{{ table.seats }}</strong>
+
+              {{
+                table.seats === 1
+                  ? 'posto disponibile'
+                  : 'posti disponibili'
+              }}
+            </p>
+
+            <footer>
+              <button
+                type="button"
+                (click)="startEdit(table)"
+              >
+                Modifica
+              </button>
+
+              @if (table.active) {
+                <button
+                  class="delete-button"
+                  type="button"
+                  [disabled]="
+                    deletingTableId() !== null
+                  "
+                  (click)="disableTable(table)"
+                >
+                  {{
+                    deletingTableId() === table.id
+                      ? 'Disattivazione...'
+                      : 'Disattiva'
+                  }}
+                </button>
+              }
+            </footer>
+          </div>
+        </article>
+      }
+    </section>
+
+    @if (totalPages() > 1) {
+      <nav
+        class="pagination"
+        aria-label="Paginazione tavoli"
+      >
+        <button
+          type="button"
+          [disabled]="firstPage() || loading()"
+          (click)="goToPreviousPage()"
+        >
+          ← Precedente
+        </button>
+
+        <span>
+          Pagina {{ currentPage() + 1 }}
+          di {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          [disabled]="lastPage() || loading()"
+          (click)="goToNextPage()"
+        >
+          Successiva →
+        </button>
+      </nav>
+    }
+  }
+</main>

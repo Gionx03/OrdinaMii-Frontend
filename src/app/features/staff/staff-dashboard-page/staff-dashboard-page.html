@@ -1,0 +1,166 @@
+<main class="staff-dashboard-page">
+  <header class="dashboard-header">
+    <div>
+      <span>Area operativa</span>
+      <h1>Pannello staff</h1>
+
+      <p>
+        Accesso come
+        <strong>{{ roleLabel() }}</strong>.
+        Seleziona una funzione per iniziare.
+      </p>
+    </div>
+
+    <a routerLink="/menu">
+      Visualizza il menu
+    </a>
+  </header>
+  <section
+    class="operational-overview"
+    aria-labelledby="operational-overview-title"
+  >
+    <header class="operational-overview__header">
+      <div>
+        <span>Situazione attuale</span>
+
+        <h2 id="operational-overview-title">
+          Riepilogo operativo
+        </h2>
+
+        @if (
+          overviewUpdatedAt();
+          as updatedAt
+          ) {
+          <p>
+            Ultimo aggiornamento:
+            {{
+              updatedAt
+                | date: 'HH:mm:ss'
+            }}
+          </p>
+        } @else {
+          <p>
+            Dati operativi del ristorante.
+          </p>
+        }
+      </div>
+
+      <button
+        type="button"
+        [disabled]="overviewLoading()"
+        (click)="loadOverview()"
+      >
+        {{
+          overviewLoading()
+            ? 'Aggiornamento...'
+            : 'Aggiorna dati'
+        }}
+      </button>
+    </header>
+
+    @if (
+      overviewError();
+      as message
+      ) {
+      <div
+        class="overview-error"
+        role="alert"
+      >
+        <p>{{ message }}</p>
+
+        <button
+          type="button"
+          (click)="loadOverview()"
+        >
+          Riprova
+        </button>
+      </div>
+    } @else {
+      <div
+        class="overview-grid"
+        [class.overview-grid--loading]="
+          overviewLoading()
+        "
+        aria-live="polite"
+      >
+        @for (
+          metric of overviewMetrics();
+          track metric.label
+          ) {
+          <a
+            class="overview-card"
+            [attr.data-tone]="metric.tone"
+            [routerLink]="metric.route"
+          >
+            <span>{{ metric.label }}</span>
+
+            <strong>
+              {{
+                overviewLoading()
+                  ? '—'
+                  : metric.value
+              }}
+            </strong>
+
+            <p>{{ metric.description }}</p>
+
+            <small>
+              Apri gestione →
+            </small>
+          </a>
+        }
+      </div>
+    }
+  </section>
+
+  <section
+    class="actions-grid"
+  <section
+    class="actions-grid"
+    aria-label="Funzioni disponibili"
+  >
+    @for (
+      action of actions();
+      track action.route
+      ) {
+      <a
+        class="action-card"
+        [routerLink]="action.route"
+      >
+        <span
+          [class]="
+            'action-card__icon ' +
+            'action-card__icon--' +
+            action.tone
+          "
+          aria-hidden="true"
+        >
+          {{ action.code }}
+        </span>
+
+        <div>
+          <h2>{{ action.title }}</h2>
+          <p>{{ action.description }}</p>
+        </div>
+
+        <span
+          class="action-card__arrow"
+          aria-hidden="true"
+        >
+          →
+        </span>
+      </a>
+    }
+  </section>
+
+  <section class="dashboard-note">
+    <div aria-hidden="true">i</div>
+
+    <p>
+      Le funzioni mostrate dipendono dai ruoli
+      presenti nel token Keycloak. Un accesso non
+      autorizzato viene comunque bloccato dai
+      route guard.
+    </p>
+  </section>
+</main>

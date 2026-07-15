@@ -1,0 +1,398 @@
+<main class="staff-reservation-page">
+  <header class="page-header">
+    <div>
+      <span>Operazioni di sala</span>
+      <h1>Nuova prenotazione</h1>
+
+      <p>
+        Registra una prenotazione ricevuta
+        telefonicamente o direttamente in sala.
+      </p>
+    </div>
+
+    <a routerLink="/staff/reservations">
+      Gestione prenotazioni
+    </a>
+  </header>
+
+  @if (
+    createdReservation();
+    as reservation
+    ) {
+    <section
+      class="reservation-success"
+      role="status"
+    >
+      <div
+        class="reservation-success__icon"
+        aria-hidden="true"
+      >
+        ✓
+      </div>
+
+      <span>Prenotazione registrata</span>
+
+      <h2>
+        Il tavolo è stato prenotato correttamente.
+      </h2>
+
+      <p class="reservation-success__id">
+        Codice prenotazione:
+        {{ reservation.id }}
+      </p>
+
+      <dl>
+        <div>
+          <dt>Cliente</dt>
+          <dd>
+            {{ reservation.user.username }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Data</dt>
+          <dd>
+            {{
+              reservation.date
+                | date: 'dd/MM/yyyy'
+            }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Ora</dt>
+          <dd>{{ reservation.time }}</dd>
+        </div>
+
+        <div>
+          <dt>Persone</dt>
+          <dd>
+            {{ reservation.numberOfPeople }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Tavolo</dt>
+          <dd>
+            Numero
+            {{ reservation.table.number }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Stato</dt>
+          <dd>Confermata</dd>
+        </div>
+      </dl>
+
+      <div class="reservation-success__actions">
+        <button
+          type="button"
+          (click)="createAnotherReservation()"
+        >
+          Nuova prenotazione
+        </button>
+
+        <a routerLink="/staff/reservations">
+          Torna alla gestione
+        </a>
+      </div>
+    </section>
+  } @else if (loadingOptions()) {
+    <section
+      class="feedback"
+      aria-live="polite"
+    >
+      <div
+        class="loader"
+        aria-hidden="true"
+      ></div>
+
+      <p>
+        Caricamento di clienti e tavoli...
+      </p>
+    </section>
+  } @else if (optionsError(); as message) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>Impossibile preparare il modulo</h2>
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="loadOptions()"
+      >
+        Riprova
+      </button>
+    </section>
+  } @else {
+    <div class="reservation-layout">
+      <form
+        class="reservation-form"
+        [formGroup]="reservationForm"
+        (ngSubmit)="submitReservation()"
+      >
+        <h2>Dati della prenotazione</h2>
+
+        <div class="form-grid">
+          <div
+            class="
+              form-field
+              form-field--full
+            "
+          >
+            <label for="staff-reservation-customer">
+              Cliente
+            </label>
+
+            <select
+              id="staff-reservation-customer"
+              formControlName="userId"
+            >
+              <option
+                value=""
+                disabled
+              >
+                Seleziona un cliente
+              </option>
+
+              @for (
+                customer of customers();
+                track customer.id
+                ) {
+                <option [value]="customer.id">
+                  {{ customer.username }}
+                  —
+                  {{ customer.email }}
+                </option>
+              }
+            </select>
+
+            @if (customers().length === 0) {
+              <p class="field-error">
+                Nessun cliente registrato
+                disponibile.
+              </p>
+            } @else if (
+              userIdControl.touched &&
+              userIdControl.hasError('required')
+              ) {
+              <p class="field-error">
+                Seleziona il cliente.
+              </p>
+            } @else if (
+              userIdControl.touched &&
+              userIdControl.hasError(
+                'unavailable'
+              )
+              ) {
+              <p class="field-error">
+                Il cliente selezionato
+                non è disponibile.
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="staff-reservation-date">
+              Data
+            </label>
+
+            <input
+              id="staff-reservation-date"
+              type="date"
+              formControlName="date"
+              [min]="today"
+            />
+
+            @if (
+              dateControl.touched &&
+              dateControl.hasError('required')
+              ) {
+              <p class="field-error">
+                Inserisci una data.
+              </p>
+            } @else if (
+              dateControl.touched &&
+              dateControl.hasError('pastDate')
+              ) {
+              <p class="field-error">
+                La data non può essere
+                nel passato.
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="staff-reservation-time">
+              Ora
+            </label>
+
+            <input
+              id="staff-reservation-time"
+              type="time"
+              formControlName="time"
+            />
+
+            @if (
+              timeControl.touched &&
+              timeControl.hasError('required')
+              ) {
+              <p class="field-error">
+                Inserisci un orario.
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="staff-reservation-people">
+              Numero di persone
+            </label>
+
+            <input
+              id="staff-reservation-people"
+              type="number"
+              min="1"
+              step="1"
+              formControlName="numberOfPeople"
+            />
+
+            @if (
+              peopleControl.touched &&
+              peopleControl.invalid
+              ) {
+              <p class="field-error">
+                Inserisci un numero intero
+                maggiore di zero.
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="staff-reservation-table">
+              Tavolo
+            </label>
+
+            <select
+              id="staff-reservation-table"
+              formControlName="tableId"
+            >
+              <option
+                value=""
+                disabled
+              >
+                Seleziona un tavolo
+              </option>
+
+              @for (
+                table of availableTables();
+                track table.id
+                ) {
+                <option [value]="table.id">
+                  Tavolo {{ table.number }}
+                  —
+                  {{ table.seats }} posti
+                </option>
+              }
+            </select>
+
+            @if (
+              availableTables().length === 0
+              ) {
+              <p class="field-error">
+                Nessun tavolo attivo può
+                ospitare
+                {{ numberOfPeople() }}
+                persone.
+              </p>
+            } @else if (
+              tableIdControl.touched &&
+              tableIdControl.hasError('required')
+              ) {
+              <p class="field-error">
+                Seleziona un tavolo.
+              </p>
+            } @else if (
+              tableIdControl.touched &&
+              tableIdControl.hasError(
+                'unavailable'
+              )
+              ) {
+              <p class="field-error">
+                Il tavolo selezionato
+                non è disponibile.
+              </p>
+            }
+          </div>
+        </div>
+
+        @if (submitError(); as message) {
+          <p
+            class="submit-error"
+            role="alert"
+          >
+            {{ message }}
+          </p>
+        }
+
+        <button
+          class="submit-button"
+          type="submit"
+          [disabled]="
+            submitting() ||
+            reservationForm.invalid ||
+            customers().length === 0 ||
+            availableTables().length === 0
+          "
+        >
+          {{
+            submitting()
+              ? 'Registrazione in corso...'
+              : 'Registra prenotazione'
+          }}
+        </button>
+      </form>
+
+      <aside class="reservation-info">
+        <h2>Controlli automatici</h2>
+
+        <ul>
+          <li>
+            Vengono mostrati solamente
+            utenti con ruolo Cliente.
+          </li>
+
+          <li>
+            La data non può essere
+            precedente a oggi.
+          </li>
+
+          <li>
+            I tavoli visualizzati hanno
+            posti sufficienti.
+          </li>
+
+          <li>
+            Il backend impedisce due
+            prenotazioni attive nello
+            stesso orario.
+          </li>
+
+          <li>
+            La nuova prenotazione viene
+            creata come Confermata.
+          </li>
+        </ul>
+
+        <p>
+          Se il tavolo viene occupato nel
+          frattempo, il backend restituirà
+          un conflitto e sarà possibile
+          sceglierne un altro.
+        </p>
+      </aside>
+    </div>
+  }
+</main>

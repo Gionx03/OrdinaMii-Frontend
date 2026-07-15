@@ -1,0 +1,425 @@
+<main class="manage-reservations-page">
+  <header class="page-header">
+    <div>
+      <span>Gestione sala</span>
+
+      <h1>Gestione prenotazioni</h1>
+
+      <p>
+        Controlla gli arrivi, i tavoli
+        assegnati e lo stato delle
+        prenotazioni.
+      </p>
+    </div>
+
+    <div class="page-header__actions">
+      <a routerLink="/staff/reservations/new">
+        Nuova prenotazione
+      </a>
+
+      <button
+        type="button"
+        [disabled]="loading()"
+        (click)="
+      loadReservations(currentPage())
+    "
+      >
+        Aggiorna elenco
+      </button>
+    </div>
+  </header>
+
+  <form
+    class="filters"
+    [formGroup]="filtersForm"
+    (ngSubmit)="applyFilters()"
+  >
+    <div class="filter-field">
+      <label for="reservation-status">
+        Stato
+      </label>
+
+      <select
+        id="reservation-status"
+        formControlName="status"
+      >
+        <option value="">
+          Tutti gli stati
+        </option>
+
+        @for (
+          statusOption of statusOptions;
+          track statusOption
+          ) {
+          <option [value]="statusOption">
+            {{ statusLabels[statusOption] }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="reservation-table">
+        Tavolo
+      </label>
+
+      @if (loadingTables()) {
+        <select
+          id="reservation-table"
+          disabled
+        >
+          <option>
+            Caricamento tavoli...
+          </option>
+        </select>
+      } @else {
+        <select
+          id="reservation-table"
+          formControlName="tableId"
+        >
+          <option value="">
+            Tutti i tavoli
+          </option>
+
+          @for (
+            table of tables();
+            track table.id
+            ) {
+            <option [value]="table.id">
+              Tavolo {{ table.number }}
+            </option>
+          }
+        </select>
+      }
+
+      @if (tablesError(); as message) {
+        <small class="filter-warning">
+          {{ message }}
+        </small>
+      }
+    </div>
+
+    <div class="filter-field">
+      <label for="reservation-date">
+        Data
+      </label>
+
+      <input
+        id="reservation-date"
+        type="date"
+        formControlName="date"
+      />
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="submit"
+        [disabled]="loading()"
+      >
+        Applica filtri
+      </button>
+
+      <button
+        class="secondary-button"
+        type="button"
+        [disabled]="loading()"
+        (click)="clearFilters()"
+      >
+        Azzera
+      </button>
+    </div>
+  </form>
+
+  @if (actionError(); as message) {
+    <p
+      class="action-error"
+      role="alert"
+    >
+      {{ message }}
+    </p>
+  }
+
+  @if (loading()) {
+    <section
+      class="feedback"
+      aria-live="polite"
+    >
+      <div
+        class="loader"
+        aria-hidden="true"
+      ></div>
+
+      <p>
+        Caricamento delle prenotazioni...
+      </p>
+    </section>
+  } @else if (
+    errorMessage();
+    as message
+    ) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>
+        Impossibile caricare
+        le prenotazioni
+      </h2>
+
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="
+          loadReservations(currentPage())
+        "
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (
+    reservations().length === 0
+    ) {
+    <section class="feedback">
+      <h2>
+        Nessuna prenotazione trovata
+      </h2>
+
+      <p>
+        Non ci sono prenotazioni
+        corrispondenti ai filtri selezionati.
+      </p>
+    </section>
+  } @else {
+    <p class="results-heading">
+      <strong>{{ totalElements() }}</strong>
+
+      {{
+        totalElements() === 1
+          ? 'prenotazione trovata'
+          : 'prenotazioni trovate'
+      }}
+    </p>
+
+    <section
+      class="reservations-list"
+      aria-label="Elenco prenotazioni"
+    >
+      @for (
+        reservation of reservations();
+        track reservation.id
+        ) {
+        <article class="reservation-card">
+          <div class="reservation-card__date">
+            <span>
+              {{
+                reservation.date
+                  | date: 'MMM'
+              }}
+            </span>
+
+            <strong>
+              {{
+                reservation.date
+                  | date: 'dd'
+              }}
+            </strong>
+
+            <small>
+              {{ reservation.time }}
+            </small>
+          </div>
+
+          <div class="reservation-card__content">
+            <header>
+              <div>
+                <span>
+                  Prenotazione
+                  #{{ reservation.id }}
+                </span>
+
+                <h2>
+                  {{ reservation.user.username }}
+                </h2>
+
+                <a
+                  [href]="
+                    'mailto:' +
+                    reservation.user.email
+                  "
+                >
+                  {{ reservation.user.email }}
+                </a>
+              </div>
+
+              <span
+                class="status-badge"
+                [attr.data-status]="
+                  reservation.status
+                "
+              >
+                {{
+                  statusLabels[
+                    reservation.status
+                    ]
+                }}
+              </span>
+            </header>
+
+            <dl>
+              <div>
+                <dt>Data</dt>
+
+                <dd>
+                  {{
+                    reservation.date
+                      | date: 'dd/MM/yyyy'
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Ora</dt>
+                <dd>{{ reservation.time }}</dd>
+              </div>
+
+              <div>
+                <dt>Tavolo</dt>
+
+                <dd>
+                  Numero
+                  {{ reservation.table.number }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Persone</dt>
+
+                <dd>
+                  {{
+                    reservation.numberOfPeople
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Posti tavolo</dt>
+
+                <dd>
+                  {{ reservation.table.seats }}
+                </dd>
+              </div>
+            </dl>
+
+            @if (
+              reservation.status ===
+              status.CONFIRMED
+              ) {
+              <div class="reservation-actions">
+                <a
+                  class="edit-link"
+                  [routerLink]="[
+                    '/staff/reservations',
+                    reservation.id,
+                    'edit'
+                  ]"
+                >
+                  Modifica
+                </a>
+                <button
+                  class="complete-button"
+                  type="button"
+                  [disabled]="
+                    updatingReservationId() !==
+                      null ||
+                    !canComplete(reservation)
+                  "
+                  [title]="
+                    canComplete(reservation)
+                      ? 'Completa la prenotazione'
+                      : 'La prenotazione è ancora futura'
+                  "
+                  (click)="
+                    updateStatus(
+                      reservation.id,
+                      status.COMPLETED
+                    )
+                  "
+                >
+                  Segna completata
+                </button>
+
+                <button
+                  class="cancel-button"
+                  type="button"
+                  [disabled]="
+                    updatingReservationId() !==
+                    null
+                  "
+                  (click)="
+                    updateStatus(
+                      reservation.id,
+                      status.CANCELLED
+                    )
+                  "
+                >
+                  Annulla prenotazione
+                </button>
+
+                @if (
+                  updatingReservationId() ===
+                  reservation.id
+                  ) {
+                  <span aria-live="polite">
+                    Aggiornamento...
+                  </span>
+                } @else if (
+                  !canComplete(reservation)
+                  ) {
+                  <span>
+                    Completamento disponibile
+                    dopo data e ora previste.
+                  </span>
+                }
+              </div>
+            }
+          </div>
+        </article>
+      }
+    </section>
+
+    @if (totalPages() > 1) {
+      <nav
+        class="pagination"
+        aria-label="
+          Paginazione prenotazioni
+        "
+      >
+        <button
+          type="button"
+          [disabled]="
+            firstPage() || loading()
+          "
+          (click)="goToPreviousPage()"
+        >
+          ← Precedente
+        </button>
+
+        <span>
+          Pagina {{ currentPage() + 1 }}
+          di {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          [disabled]="
+            lastPage() || loading()
+          "
+          (click)="goToNextPage()"
+        >
+          Successiva →
+        </button>
+      </nav>
+    }
+  }
+</main>

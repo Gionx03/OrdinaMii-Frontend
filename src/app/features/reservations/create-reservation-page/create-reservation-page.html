@@ -1,0 +1,317 @@
+<main class="reservation-page">
+  <header class="page-header">
+    <span>Prenota il tuo posto</span>
+
+    <h1>Prenota un tavolo</h1>
+
+    <p>
+      Scegli data, ora e numero di persone.
+      Ti mostreremo i tavoli adatti.
+    </p>
+  </header>
+
+  @if (
+    createdReservation();
+    as reservation
+    ) {
+    <section
+      class="reservation-success"
+      role="status"
+    >
+      <div
+        class="reservation-success__icon"
+        aria-hidden="true"
+      >
+        ✓
+      </div>
+
+      <span>Prenotazione confermata</span>
+
+      <h2>Il tavolo è stato prenotato.</h2>
+
+      <p class="reservation-success__id">
+        Codice prenotazione:
+        {{ reservation.id }}
+      </p>
+
+      <dl>
+        <div>
+          <dt>Data</dt>
+          <dd>
+            {{
+              reservation.date
+                | date: 'dd/MM/yyyy'
+            }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Ora</dt>
+          <dd>{{ reservation.time }}</dd>
+        </div>
+
+        <div>
+          <dt>Persone</dt>
+          <dd>
+            {{ reservation.numberOfPeople }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Tavolo</dt>
+          <dd>
+            Numero
+            {{ reservation.table.number }}
+          </dd>
+        </div>
+      </dl>
+
+      <div class="reservation-success__actions">
+        <button
+          type="button"
+          (click)="createAnotherReservation()"
+        >
+          Nuova prenotazione
+        </button>
+
+        <a routerLink="/my-reservations">
+          Le mie prenotazioni
+        </a>
+      </div>
+    </section>
+  } @else {
+    <div class="reservation-layout">
+      <form
+        class="reservation-form"
+        [formGroup]="reservationForm"
+        (ngSubmit)="submitReservation()"
+      >
+        <h2>Dettagli della prenotazione</h2>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="reservation-date">
+              Data
+            </label>
+
+            <input
+              id="reservation-date"
+              type="date"
+              formControlName="date"
+              [min]="today"
+            />
+
+            @if (
+              dateControl.touched &&
+              dateControl.hasError('required')
+              ) {
+              <p class="field-error">
+                Inserisci una data.
+              </p>
+            } @else if (
+              dateControl.touched &&
+              dateControl.hasError('pastDate')
+              ) {
+              <p class="field-error">
+                La data non può essere nel passato.
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="reservation-time">
+              Ora
+            </label>
+
+            <input
+              id="reservation-time"
+              type="time"
+              formControlName="time"
+            />
+
+            @if (
+              timeControl.touched &&
+              timeControl.hasError('required')
+              ) {
+              <p class="field-error">
+                Inserisci un orario.
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="number-of-people">
+              Numero di persone
+            </label>
+
+            <input
+              id="number-of-people"
+              type="number"
+              min="1"
+              step="1"
+              formControlName="numberOfPeople"
+            />
+
+            @if (
+              peopleControl.touched &&
+              peopleControl.invalid
+              ) {
+              <p class="field-error">
+                Inserisci almeno una persona.
+              </p>
+            }
+          </div>
+
+          <div
+            class="
+              form-field
+              form-field--full
+            "
+          >
+            <label for="reservation-table">
+              Tavolo
+            </label>
+
+            @if (loadingTables()) {
+              <p class="field-message">
+                Caricamento dei tavoli...
+              </p>
+            } @else if (
+              tablesError();
+              as message
+              ) {
+              <div
+                class="table-error"
+                role="alert"
+              >
+                <p>{{ message }}</p>
+
+                <button
+                  type="button"
+                  (click)="loadTables()"
+                >
+                  Riprova
+                </button>
+              </div>
+            } @else {
+              <select
+                id="reservation-table"
+                formControlName="tableId"
+              >
+                <option
+                  value=""
+                  disabled
+                >
+                  Seleziona un tavolo
+                </option>
+
+                @for (
+                  table of availableTables();
+                  track table.id
+                  ) {
+                  <option [value]="table.id">
+                    Tavolo {{ table.number }}
+                    — {{ table.seats }} posti
+                  </option>
+                }
+              </select>
+
+              @if (
+                availableTables().length === 0
+                ) {
+                <p class="field-error">
+                  Nessun tavolo attivo può
+                  ospitare
+                  {{ numberOfPeople() }}
+                  persone.
+                </p>
+              } @else if (
+                tableIdControl.touched &&
+                tableIdControl.hasError(
+                  'required'
+                )
+                ) {
+                <p class="field-error">
+                  Seleziona un tavolo.
+                </p>
+              } @else if (
+                tableIdControl.touched &&
+                tableIdControl.hasError(
+                  'unavailable'
+                )
+                ) {
+                <p class="field-error">
+                  Il tavolo selezionato
+                  non è disponibile.
+                </p>
+              }
+            }
+          </div>
+        </div>
+
+        @if (
+          submitError();
+          as message
+          ) {
+          <p
+            class="submit-error"
+            role="alert"
+          >
+            {{ message }}
+          </p>
+        }
+
+        <button
+          class="submit-button"
+          type="submit"
+          [disabled]="
+            submitting() ||
+            loadingTables() ||
+            reservationForm.invalid ||
+            availableTables().length === 0
+          "
+        >
+          {{
+            submitting()
+              ? 'Invio in corso...'
+              : 'Conferma prenotazione'
+          }}
+        </button>
+      </form>
+
+      <aside class="reservation-info">
+        <h2>Prima di prenotare</h2>
+
+        <ul>
+          <li>
+            La data deve essere oggi
+            o un giorno futuro.
+          </li>
+
+          <li>
+            Vengono mostrati solo i tavoli
+            con posti sufficienti.
+          </li>
+
+          <li>
+            Il tavolo viene confermato
+            quando il backend accetta
+            la richiesta.
+          </li>
+
+          <li>
+            Se è già occupato nello stesso
+            giorno e orario, scegli un
+            altro tavolo.
+          </li>
+        </ul>
+
+        <p>
+          La prenotazione viene registrata
+          con stato
+          <strong>Confermata</strong>.
+        </p>
+      </aside>
+    </div>
+  }
+</main>

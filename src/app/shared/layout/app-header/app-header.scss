@@ -47,6 +47,7 @@
   gap: 8px;
 
   a {
+    flex-shrink: 0;
     border-radius: 9px;
     padding: 9px 13px;
     color: #665d55;
@@ -57,6 +58,24 @@
       background-color: #f4ece4;
       color: #a64b2a;
     }
+  }
+}
+
+.cart-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  &__badge {
+    display: grid;
+    min-width: 22px;
+    height: 22px;
+    place-items: center;
+    border-radius: 999px;
+    background-color: #a64b2a;
+    padding: 0 6px;
+    color: #ffffff;
+    font-size: 0.75rem;
   }
 }
 
@@ -108,9 +127,35 @@
   }
 }
 
+@media (max-width: 1000px) {
+  .app-header__inner {
+    grid-template-areas:
+      'brand spacer actions'
+      'navigation navigation navigation';
+    grid-template-columns: auto 1fr auto;
+    row-gap: 5px;
+    padding: 10px 0;
+  }
+
+  .brand {
+    grid-area: brand;
+  }
+
+  .navigation {
+    grid-area: navigation;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 3px;
+    scrollbar-width: thin;
+  }
+
+  .session-actions {
+    grid-area: actions;
+  }
+}
+
 @media (max-width: 640px) {
   .app-header__inner {
-    grid-template-columns: auto 1fr auto;
     width: min(100% - 24px, 1200px);
   }
 
@@ -120,29 +165,16 @@
   }
 
   .navigation {
-    justify-self: center;
-  }
-  .cart-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border-radius: 9px;
-    background-color: #f4ece4;
-    padding: 9px 11px;
-    color: #5c5047;
-    font-size: 0.9rem;
-    font-weight: 700;
+    gap: 4px;
 
-    &__badge {
-      display: grid;
-      min-width: 22px;
-      height: 22px;
-      place-items: center;
-      border-radius: 999px;
-      background-color: #a64b2a;
-      padding: 0 6px;
-      color: #ffffff;
-      font-size: 0.75rem;
+    a {
+      padding: 8px 10px;
+      font-size: 0.86rem;
     }
+  }
+
+  .session-button {
+    min-height: 37px;
+    padding: 0 12px;
   }
 }

@@ -1,0 +1,333 @@
+<main class="manage-assistance-page">
+  <header class="page-header">
+    <div>
+      <span>Gestione sala</span>
+
+      <h1>Richieste di assistenza</h1>
+
+      <p>
+        Visualizza le chiamate dai tavoli
+        e aggiornane lo stato.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      [disabled]="loading()"
+      (click)="loadRequests(currentPage())"
+    >
+      Aggiorna elenco
+    </button>
+  </header>
+
+  <form
+    class="filters"
+    [formGroup]="filtersForm"
+    (ngSubmit)="applyFilters()"
+  >
+    <div class="filter-field">
+      <label for="assistance-status">
+        Stato
+      </label>
+
+      <select
+        id="assistance-status"
+        formControlName="status"
+      >
+        <option value="">
+          Tutti gli stati
+        </option>
+
+        @for (
+          statusOption of statusOptions;
+          track statusOption
+          ) {
+          <option [value]="statusOption">
+            {{ statusLabels[statusOption] }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="assistance-table">
+        Tavolo
+      </label>
+
+      @if (loadingTables()) {
+        <select
+          id="assistance-table"
+          disabled
+        >
+          <option>
+            Caricamento tavoli...
+          </option>
+        </select>
+      } @else {
+        <select
+          id="assistance-table"
+          formControlName="tableId"
+        >
+          <option value="">
+            Tutti i tavoli
+          </option>
+
+          @for (
+            table of tables();
+            track table.id
+            ) {
+            <option [value]="table.id">
+              Tavolo {{ table.number }}
+            </option>
+          }
+        </select>
+      }
+
+      @if (tablesError(); as message) {
+        <small class="filter-warning">
+          {{ message }}
+        </small>
+      }
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="submit"
+        [disabled]="loading()"
+      >
+        Applica filtri
+      </button>
+
+      <button
+        class="secondary-button"
+        type="button"
+        [disabled]="loading()"
+        (click)="clearFilters()"
+      >
+        Azzera
+      </button>
+    </div>
+  </form>
+
+  @if (actionError(); as message) {
+    <p
+      class="action-error"
+      role="alert"
+    >
+      {{ message }}
+    </p>
+  }
+
+  @if (loading()) {
+    <section
+      class="feedback"
+      aria-live="polite"
+    >
+      <div
+        class="loader"
+        aria-hidden="true"
+      ></div>
+
+      <p>Caricamento delle richieste...</p>
+    </section>
+  } @else if (
+    errorMessage();
+    as message
+    ) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>
+        Impossibile caricare le richieste
+      </h2>
+
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="
+          loadRequests(currentPage())
+        "
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (
+    requests().length === 0
+    ) {
+    <section class="feedback">
+      <h2>Nessuna richiesta trovata</h2>
+
+      <p>
+        Non ci sono richieste corrispondenti
+        ai filtri selezionati.
+      </p>
+    </section>
+  } @else {
+    <p class="results-heading">
+      <strong>{{ totalElements() }}</strong>
+
+      {{
+        totalElements() === 1
+          ? 'richiesta trovata'
+          : 'richieste trovate'
+      }}
+    </p>
+
+    <section
+      class="requests-list"
+      aria-label="
+        Elenco richieste di assistenza
+      "
+    >
+      @for (
+        request of requests();
+        track request.id
+        ) {
+        <article class="request-card">
+          <div class="request-card__table">
+            <span>Tavolo</span>
+
+            <strong>
+              {{ request.table.number }}
+            </strong>
+
+            <small>
+              {{ request.table.seats }} posti
+            </small>
+          </div>
+
+          <div class="request-card__content">
+            <header>
+              <div>
+                <span>Richiesta ricevuta</span>
+
+                <time
+                  [attr.datetime]="
+                    request.createdAt
+                  "
+                >
+                  {{
+                    request.createdAt
+                      | date:
+                      'dd/MM/yyyy HH:mm'
+                  }}
+                </time>
+              </div>
+
+              <span
+                class="status-badge"
+                [attr.data-status]="
+                  request.status
+                "
+              >
+                {{
+                  statusLabels[
+                    request.status
+                    ]
+                }}
+              </span>
+            </header>
+
+            <blockquote>
+              “{{ request.message }}”
+            </blockquote>
+
+            @if (request.resolvedAt) {
+              <p class="resolved-at">
+                Chiusa il
+                {{
+                  request.resolvedAt
+                    | date:
+                    'dd/MM/yyyy HH:mm'
+                }}
+              </p>
+            }
+
+            @if (
+              request.status ===
+              status.PENDING
+              ) {
+              <div class="request-actions">
+                <button
+                  class="resolve-button"
+                  type="button"
+                  [disabled]="
+                    updatingRequestId() !==
+                    null
+                  "
+                  (click)="
+                    updateStatus(
+                      request.id,
+                      status.RESOLVED
+                    )
+                  "
+                >
+                  {{
+                    updatingRequestId() ===
+                    request.id
+                      ? 'Aggiornamento...'
+                      : 'Segna come risolta'
+                  }}
+                </button>
+
+                <button
+                  class="cancel-button"
+                  type="button"
+                  [disabled]="
+                    updatingRequestId() !==
+                    null
+                  "
+                  (click)="
+                    updateStatus(
+                      request.id,
+                      status.CANCELLED
+                    )
+                  "
+                >
+                  Annulla richiesta
+                </button>
+              </div>
+            }
+          </div>
+        </article>
+      }
+    </section>
+
+    @if (totalPages() > 1) {
+      <nav
+        class="pagination"
+        aria-label="
+          Paginazione richieste
+          di assistenza
+        "
+      >
+        <button
+          type="button"
+          [disabled]="
+            firstPage() || loading()
+          "
+          (click)="goToPreviousPage()"
+        >
+          ← Precedente
+        </button>
+
+        <span>
+          Pagina {{ currentPage() + 1 }}
+          di {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          [disabled]="
+            lastPage() || loading()
+          "
+          (click)="goToNextPage()"
+        >
+          Successiva →
+        </button>
+      </nav>
+    }
+  }
+</main>

@@ -39,11 +39,27 @@
 
       @if (isCustomer()) {
         <a
+          routerLink="/my-reservations"
+          routerLinkActive="navigation__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Prenotazioni
+        </a>
+
+        <a
           routerLink="/my-orders"
           routerLinkActive="navigation__link--active"
           [routerLinkActiveOptions]="{ exact: true }"
         >
           I miei ordini
+        </a>
+
+        <a
+          routerLink="/assistance"
+          routerLinkActive="navigation__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Assistenza
         </a>
 
         <a
@@ -63,6 +79,15 @@
           <span class="cart-indicator__badge">
             {{ cartQuantity() }}
           </span>
+        </a>
+      }
+
+      @if (isStaff()) {
+        <a
+          routerLink="/staff"
+          routerLinkActive="navigation__link--active"
+        >
+          Pannello staff
         </a>
       }
     </nav>

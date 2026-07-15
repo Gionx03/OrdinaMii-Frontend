@@ -14,6 +14,7 @@ import { CartStore } from '../../../features/cart/cart-store';
 })
 export class AppHeader {
   private readonly authService = inject(AuthService);
+
   private readonly cartStore = inject(CartStore);
 
   readonly authenticated = this.authService.authenticated;
@@ -24,6 +25,12 @@ export class AppHeader {
 
   readonly isCustomer = computed(
     () => this.authService.authenticated() && this.authService.hasRole(APP_ROLE.CLIENTE),
+  );
+
+  readonly isStaff = computed(
+    () =>
+      this.authService.authenticated() &&
+      this.authService.hasAnyRole([APP_ROLE.CUOCO, APP_ROLE.CAMERIERE, APP_ROLE.ADMIN]),
   );
 
   async login(): Promise<void> {

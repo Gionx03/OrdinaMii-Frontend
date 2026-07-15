@@ -1,0 +1,436 @@
+<main class="edit-reservation-page">
+  <header class="page-header">
+    <div>
+      <span>Gestione sala</span>
+
+      <h1>Modifica prenotazione</h1>
+
+      <p>
+        Correggi data, orario, numero
+        di persone o tavolo assegnato.
+      </p>
+    </div>
+
+    <a routerLink="/staff/reservations">
+      Torna alle prenotazioni
+    </a>
+  </header>
+
+  @if (loading()) {
+    <section
+      class="feedback"
+      aria-live="polite"
+    >
+      <div
+        class="loader"
+        aria-hidden="true"
+      ></div>
+
+      <p>
+        Caricamento della prenotazione...
+      </p>
+    </section>
+  } @else if (
+    loadError();
+    as message
+    ) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>
+        Impossibile caricare
+        la prenotazione
+      </h2>
+
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="loadReservation()"
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (
+    updatedReservation();
+    as updated
+    ) {
+    <section
+      class="update-success"
+      role="status"
+    >
+      <div
+        class="update-success__icon"
+        aria-hidden="true"
+      >
+        ✓
+      </div>
+
+      <span>
+        Prenotazione aggiornata
+      </span>
+
+      <h2>
+        Le modifiche sono state salvate.
+      </h2>
+
+      <dl>
+        <div>
+          <dt>Cliente</dt>
+          <dd>{{ updated.user.username }}</dd>
+        </div>
+
+        <div>
+          <dt>Data</dt>
+
+          <dd>
+            {{
+              updated.date
+                | date: 'dd/MM/yyyy'
+            }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Ora</dt>
+          <dd>{{ updated.time }}</dd>
+        </div>
+
+        <div>
+          <dt>Persone</dt>
+
+          <dd>
+            {{ updated.numberOfPeople }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Tavolo</dt>
+
+          <dd>
+            Numero
+            {{ updated.table.number }}
+          </dd>
+        </div>
+      </dl>
+
+      <a routerLink="/staff/reservations">
+        Torna alla gestione
+      </a>
+    </section>
+  } @else if (
+    reservation();
+    as currentReservation
+    ) {
+    @if (!canEdit()) {
+      <section
+        class="blocked-message"
+        role="alert"
+      >
+        <span>
+          {{
+            statusLabels[
+              currentReservation.status
+              ]
+          }}
+        </span>
+
+        <h2>
+          Questa prenotazione non può
+          essere modificata.
+        </h2>
+
+        <p>
+          Il backend consente la modifica
+          solamente delle prenotazioni
+          ancora confermate. Le
+          prenotazioni annullate o
+          completate sono definitive.
+        </p>
+
+        <a routerLink="/staff/reservations">
+          Torna alla gestione
+        </a>
+      </section>
+    } @else {
+      <div class="edit-layout">
+        <form
+          class="edit-form"
+          [formGroup]="reservationForm"
+          (ngSubmit)="submitChanges()"
+        >
+          <h2>
+            Dati della prenotazione
+          </h2>
+
+          <div class="customer-summary">
+            <span>Cliente</span>
+
+            <strong>
+              {{
+                currentReservation
+                  .user.username
+              }}
+            </strong>
+
+            <a
+              [href]="
+                'mailto:' +
+                currentReservation
+                  .user.email
+              "
+            >
+              {{
+                currentReservation
+                  .user.email
+              }}
+            </a>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label
+                for="edit-reservation-date"
+              >
+                Data
+              </label>
+
+              <input
+                id="edit-reservation-date"
+                type="date"
+                formControlName="date"
+                [min]="today"
+              />
+
+              @if (
+                dateControl.touched &&
+                dateControl.hasError(
+                  'required'
+                )
+                ) {
+                <p class="field-error">
+                  Inserisci una data.
+                </p>
+              } @else if (
+                dateControl.touched &&
+                dateControl.hasError(
+                  'pastDate'
+                )
+                ) {
+                <p class="field-error">
+                  La data non può essere
+                  nel passato.
+                </p>
+              }
+            </div>
+
+            <div class="form-field">
+              <label
+                for="edit-reservation-time"
+              >
+                Ora
+              </label>
+
+              <input
+                id="edit-reservation-time"
+                type="time"
+                formControlName="time"
+              />
+
+              @if (
+                timeControl.touched &&
+                timeControl.hasError(
+                  'required'
+                )
+                ) {
+                <p class="field-error">
+                  Inserisci un orario.
+                </p>
+              }
+            </div>
+
+            <div class="form-field">
+              <label
+                for="edit-reservation-people"
+              >
+                Numero di persone
+              </label>
+
+              <input
+                id="edit-reservation-people"
+                type="number"
+                min="1"
+                step="1"
+                formControlName="
+                  numberOfPeople
+                "
+              />
+
+              @if (
+                peopleControl.touched &&
+                peopleControl.invalid
+                ) {
+                <p class="field-error">
+                  Inserisci un numero
+                  intero maggiore di zero.
+                </p>
+              }
+            </div>
+
+            <div class="form-field">
+              <label
+                for="edit-reservation-table"
+              >
+                Tavolo
+              </label>
+
+              <select
+                id="edit-reservation-table"
+                formControlName="tableId"
+              >
+                <option
+                  value=""
+                  disabled
+                >
+                  Seleziona un tavolo
+                </option>
+
+                @for (
+                  table of availableTables();
+                  track table.id
+                  ) {
+                  <option [value]="table.id">
+                    Tavolo
+                    {{ table.number }}
+                    —
+                    {{ table.seats }}
+                    posti
+                  </option>
+                }
+              </select>
+
+              @if (
+                availableTables().length
+                === 0
+                ) {
+                <p class="field-error">
+                  Nessun tavolo può
+                  ospitare
+                  {{ numberOfPeople() }}
+                  persone.
+                </p>
+              } @else if (
+                tableIdControl.touched &&
+                tableIdControl.hasError(
+                  'required'
+                )
+                ) {
+                <p class="field-error">
+                  Seleziona un tavolo.
+                </p>
+              } @else if (
+                tableIdControl.touched &&
+                tableIdControl.hasError(
+                  'unavailable'
+                )
+                ) {
+                <p class="field-error">
+                  Il tavolo selezionato
+                  non è disponibile.
+                </p>
+              }
+            </div>
+          </div>
+
+          @if (
+            submitError();
+            as message
+            ) {
+            <p
+              class="submit-error"
+              role="alert"
+            >
+              {{ message }}
+            </p>
+          }
+
+          <div class="form-actions">
+            <a
+              routerLink="
+                /staff/reservations
+              "
+            >
+              Annulla modifiche
+            </a>
+
+            <button
+              type="submit"
+              [disabled]="
+                submitting() ||
+                reservationForm.invalid ||
+                availableTables().length
+                  === 0
+              "
+            >
+              {{
+                submitting()
+                  ? 'Salvataggio...'
+                  : 'Salva modifiche'
+              }}
+            </button>
+          </div>
+        </form>
+
+        <aside class="edit-info">
+          <h2>Informazioni</h2>
+
+          <dl>
+            <div>
+              <dt>Codice</dt>
+
+              <dd>
+                {{
+                  currentReservation.id
+                }}
+              </dd>
+            </div>
+
+            <div>
+              <dt>Stato</dt>
+
+              <dd>
+                {{
+                  statusLabels[
+                    currentReservation
+                      .status
+                    ]
+                }}
+              </dd>
+            </div>
+
+            <div>
+              <dt>Tavolo attuale</dt>
+
+              <dd>
+                Numero
+                {{
+                  currentReservation
+                    .table.number
+                }}
+              </dd>
+            </div>
+          </dl>
+
+          <p>
+            Se il nuovo tavolo è già
+            prenotato nella stessa data
+            e ora, il backend rifiuterà
+            la modifica mostrando un
+            messaggio di conflitto.
+          </p>
+        </aside>
+      </div>
+    }
+  }
+</main>

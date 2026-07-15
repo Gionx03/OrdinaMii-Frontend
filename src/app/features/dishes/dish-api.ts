@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { PageResponse } from '../../core/http/page-response';
 import { environment } from '../../../environments/environment';
-import { Dish, DishFilters } from './dish';
+import { Dish, DishFilters, UpsertDishPayload } from './dish';
 
 @Injectable({
   providedIn: 'root',
@@ -47,5 +47,17 @@ export class DishApi {
 
   getDishById(id: string): Observable<Dish> {
     return this.http.get<Dish>(`${this.dishesUrl}/${encodeURIComponent(id)}`);
+  }
+
+  createDish(request: UpsertDishPayload): Observable<Dish> {
+    return this.http.post<Dish>(this.dishesUrl, request);
+  }
+
+  updateDish(id: string, request: UpsertDishPayload): Observable<Dish> {
+    return this.http.put<Dish>(`${this.dishesUrl}/${encodeURIComponent(id)}`, request);
+  }
+
+  deleteDish(id: string): Observable<Dish> {
+    return this.http.delete<Dish>(`${this.dishesUrl}/${encodeURIComponent(id)}`);
   }
 }

@@ -1,0 +1,411 @@
+<main class="manage-users-page">
+  <header class="page-header">
+    <div>
+      <span>Amministrazione</span>
+      <h1>Gestione utenti</h1>
+
+      <p>
+        Consulta gli account e lo storico delle attività
+        nel ristorante.
+      </p>
+    </div>
+  </header>
+
+  <form
+    class="filters"
+    [formGroup]="filtersForm"
+    (ngSubmit)="applyFilters()"
+  >
+    <div class="form-field">
+      <label for="user-role">Ruolo</label>
+
+      <select
+        id="user-role"
+        formControlName="role"
+      >
+        <option value="">Tutti i ruoli</option>
+
+        @for (role of roles; track role) {
+          <option [value]="role">
+            {{ roleLabels[role] }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="submit"
+        [disabled]="loading()"
+      >
+        Applica filtro
+      </button>
+
+      <button
+        class="secondary-button"
+        type="button"
+        [disabled]="loading()"
+        (click)="clearFilters()"
+      >
+        Azzera
+      </button>
+    </div>
+  </form>
+
+  @if (selectedUser(); as user) {
+    <section
+      class="user-details"
+      aria-labelledby="user-details-title"
+    >
+      <header>
+        <div>
+          <span>{{ roleLabels[user.role] }}</span>
+
+          <h2 id="user-details-title">
+            {{ user.username }}
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          [disabled]="detailsLoading()"
+          (click)="closeDetails()"
+        >
+          Chiudi
+        </button>
+      </header>
+
+      <div class="user-information">
+        <div>
+          <span>Email</span>
+          <strong>{{ user.email }}</strong>
+        </div>
+
+        <div>
+          <span>Telefono</span>
+
+          <strong>
+            {{ user.phone || 'Non inserito' }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Registrato il</span>
+
+          <strong>
+            {{
+              user.createdAt
+                | date: 'dd/MM/yyyy HH:mm'
+            }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Ultimo aggiornamento</span>
+
+          <strong>
+            {{
+              user.updatedAt
+                | date: 'dd/MM/yyyy HH:mm'
+            }}
+          </strong>
+        </div>
+      </div>
+
+      @if (detailsLoading()) {
+        <div
+          class="details-feedback"
+          aria-live="polite"
+        >
+          <div
+            class="loader"
+            aria-hidden="true"
+          ></div>
+
+          <p>Caricamento dello storico...</p>
+        </div>
+      } @else if (detailsError(); as message) {
+        <p class="action-error" role="alert">
+          {{ message }}
+        </p>
+      } @else {
+        <div class="activity-columns">
+          <section aria-labelledby="user-orders-title">
+            <h3 id="user-orders-title">
+              Ultimi ordini
+            </h3>
+
+            @if (userOrders().length === 0) {
+              <p class="empty-activity">
+                Nessun ordine trovato.
+              </p>
+            } @else {
+              <div class="activity-list">
+                @for (
+                  order of userOrders();
+                  track order.id
+                  ) {
+                  <article class="activity-card">
+                    <header>
+                      <strong>
+                        {{
+                          order.total
+                            | currency
+                            : 'EUR'
+                              : 'symbol'
+                              : '1.2-2'
+                        }}
+                      </strong>
+
+                      <span>
+                        {{
+                          orderStatusLabels[
+                            order.status
+                            ]
+                        }}
+                      </span>
+                    </header>
+
+                    <p>
+                      {{
+                        order.orderDate
+                          | date
+                          : 'dd/MM/yyyy HH:mm'
+                      }}
+                    </p>
+
+                    <dl>
+                      <div>
+                        <dt>Tipo</dt>
+
+                        <dd>
+                          {{
+                            orderTypeLabels[
+                              order.orderType
+                              ]
+                          }}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt>Pagamento</dt>
+
+                        <dd>
+                          {{
+                            paymentStatusLabels[
+                              order.paymentStatus
+                              ]
+                          }}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt>Articoli</dt>
+                        <dd>{{ order.items.length }}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+
+          <section
+            aria-labelledby="user-reservations-title"
+          >
+            <h3 id="user-reservations-title">
+              Ultime prenotazioni
+            </h3>
+
+            @if (
+              userReservations().length === 0
+              ) {
+              <p class="empty-activity">
+                Nessuna prenotazione trovata.
+              </p>
+            } @else {
+              <div class="activity-list">
+                @for (
+                  reservation of userReservations();
+                  track reservation.id
+                  ) {
+                  <article class="activity-card">
+                    <header>
+                      <strong>
+                        Tavolo
+                        {{ reservation.table.number }}
+                      </strong>
+
+                      <span>
+                        {{
+                          reservationStatusLabels[
+                            reservation.status
+                            ]
+                        }}
+                      </span>
+                    </header>
+
+                    <p>
+                      {{
+                        reservation.date
+                          | date: 'dd/MM/yyyy'
+                      }}
+                      alle {{ reservation.time }}
+                    </p>
+
+                    <dl>
+                      <div>
+                        <dt>Persone</dt>
+
+                        <dd>
+                          {{
+                            reservation.numberOfPeople
+                          }}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt>Posti tavolo</dt>
+
+                        <dd>
+                          {{
+                            reservation.table.seats
+                          }}
+                        </dd>
+                      </div>
+                    </dl>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+        </div>
+      }
+    </section>
+  }
+
+  @if (loading()) {
+    <section
+      class="feedback"
+      aria-live="polite"
+    >
+      <div
+        class="loader"
+        aria-hidden="true"
+      ></div>
+
+      <p>Caricamento degli utenti...</p>
+    </section>
+  } @else if (errorMessage(); as message) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>Impossibile caricare gli utenti</h2>
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="loadUsers(currentPage())"
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (users().length === 0) {
+    <section class="feedback">
+      <h2>Nessun utente trovato</h2>
+
+      <p>
+        Non ci sono utenti corrispondenti al ruolo
+        selezionato.
+      </p>
+    </section>
+  } @else {
+    <p class="results-heading">
+      <strong>{{ totalElements() }}</strong>
+
+      {{
+        totalElements() === 1
+          ? 'utente trovato'
+          : 'utenti trovati'
+      }}
+    </p>
+
+    <section
+      class="users-grid"
+      aria-label="Elenco utenti"
+    >
+      @for (user of users(); track user.id) {
+        <article class="user-card">
+          <div
+            class="user-card__avatar"
+            aria-hidden="true"
+          >
+            {{
+              user.username
+                .charAt(0)
+                .toUpperCase()
+            }}
+          </div>
+
+          <div class="user-card__content">
+            <header>
+              <h2>{{ user.username }}</h2>
+
+              <span>
+                {{ roleLabels[user.role] }}
+              </span>
+            </header>
+
+            <p>{{ user.email }}</p>
+
+            <p>
+              {{
+                user.phone ||
+                'Telefono non inserito'
+              }}
+            </p>
+
+            <footer>
+              <button
+                type="button"
+                [disabled]="detailsLoading()"
+                (click)="openDetails(user)"
+              >
+                Visualizza dettagli
+              </button>
+            </footer>
+          </div>
+        </article>
+      }
+    </section>
+
+    @if (totalPages() > 1) {
+      <nav
+        class="pagination"
+        aria-label="Paginazione utenti"
+      >
+        <button
+          type="button"
+          [disabled]="firstPage() || loading()"
+          (click)="goToPreviousPage()"
+        >
+          ← Precedente
+        </button>
+
+        <span>
+          Pagina {{ currentPage() + 1 }}
+          di {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          [disabled]="lastPage() || loading()"
+          (click)="goToNextPage()"
+        >
+          Successiva →
+        </button>
+      </nav>
+    }
+  }
+</main>

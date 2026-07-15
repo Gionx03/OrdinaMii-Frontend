@@ -1,0 +1,255 @@
+<main class="my-reservations-page">
+  <header class="page-header">
+    <div>
+      <span>La tua agenda</span>
+
+      <h1>Le mie prenotazioni</h1>
+
+      <p>
+        Controlla giorno, orario, tavolo
+        e stato delle tue prenotazioni.
+      </p>
+    </div>
+
+    <a routerLink="/reservations/new">
+      Nuova prenotazione
+    </a>
+  </header>
+
+  <form
+    class="filters"
+    [formGroup]="filtersForm"
+    (ngSubmit)="applyFilters()"
+  >
+    <div class="filter-field">
+      <label for="reservation-start-date">
+        A partire dal
+      </label>
+
+      <input
+        id="reservation-start-date"
+        type="date"
+        formControlName="startDate"
+      />
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="submit"
+        [disabled]="loading()"
+      >
+        Applica filtro
+      </button>
+
+      <button
+        class="secondary-button"
+        type="button"
+        [disabled]="loading()"
+        (click)="clearFilters()"
+      >
+        Mostra tutte
+      </button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <section
+      class="feedback"
+      aria-live="polite"
+    >
+      <div
+        class="loader"
+        aria-hidden="true"
+      ></div>
+
+      <p>
+        Caricamento delle prenotazioni...
+      </p>
+    </section>
+  } @else if (
+    errorMessage();
+    as message
+    ) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>Qualcosa è andato storto</h2>
+
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="
+          loadReservations(currentPage())
+        "
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (
+    reservations().length === 0
+    ) {
+    <section class="feedback">
+      <h2>
+        Nessuna prenotazione trovata
+      </h2>
+
+      <p>
+        Non ci sono prenotazioni
+        corrispondenti alla data selezionata.
+      </p>
+
+      <a routerLink="/reservations/new">
+        Prenota un tavolo
+      </a>
+    </section>
+  } @else {
+    <p class="results-heading">
+      <strong>{{ totalElements() }}</strong>
+
+      {{
+        totalElements() === 1
+          ? 'prenotazione trovata'
+          : 'prenotazioni trovate'
+      }}
+    </p>
+
+    <section
+      class="reservations-list"
+      aria-label="
+        Elenco delle tue prenotazioni
+      "
+    >
+      @for (
+        reservation of reservations();
+        track reservation.id
+        ) {
+        <article class="reservation-card">
+          <div
+            class="reservation-card__date"
+            aria-hidden="true"
+          >
+            <span>
+              {{
+                reservation.date
+                  | date: 'MMM'
+              }}
+            </span>
+
+            <strong>
+              {{
+                reservation.date
+                  | date: 'dd'
+              }}
+            </strong>
+
+            <small>
+              {{
+                reservation.date
+                  | date: 'yyyy'
+              }}
+            </small>
+          </div>
+
+          <div class="reservation-card__content">
+            <header>
+              <div>
+                <span>Prenotazione</span>
+
+                <h2>
+                  {{
+                    reservation.date
+                      | date:
+                      'EEEE d MMMM yyyy'
+                  }}
+                  alle {{ reservation.time }}
+                </h2>
+              </div>
+
+              <span
+                class="status-badge"
+                [attr.data-status]="
+                  reservation.status
+                "
+              >
+                {{
+                  statusLabels[
+                    reservation.status
+                    ]
+                }}
+              </span>
+            </header>
+
+            <dl>
+              <div>
+                <dt>Tavolo</dt>
+
+                <dd>
+                  Numero
+                  {{ reservation.table.number }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Persone</dt>
+
+                <dd>
+                  {{
+                    reservation.numberOfPeople
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Posti del tavolo</dt>
+
+                <dd>
+                  {{ reservation.table.seats }}
+                </dd>
+              </div>
+            </dl>
+
+            <p class="reservation-card__id">
+              Codice: {{ reservation.id }}
+            </p>
+          </div>
+        </article>
+      }
+    </section>
+
+    @if (totalPages() > 1) {
+      <nav
+        class="pagination"
+        aria-label="
+          Paginazione delle prenotazioni
+        "
+      >
+        <button
+          type="button"
+          [disabled]="
+            firstPage() || loading()
+          "
+          (click)="goToPreviousPage()"
+        >
+          ← Precedente
+        </button>
+
+        <span>
+          Pagina {{ currentPage() + 1 }}
+          di {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          [disabled]="
+            lastPage() || loading()
+          "
+          (click)="goToNextPage()"
+        >
+          Successiva →
+        </button>
+      </nav>
+    }
+  }
+</main>

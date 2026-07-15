@@ -37,3 +37,12 @@ export interface DishFilters {
   readonly size?: number;
   readonly sort?: string;
 }
+
+export interface UpsertDishPayload {
+  readonly name: string;
+  readonly description: string | null;
+  readonly price: number;
+  readonly category: DishCategory;
+  readonly available: boolean;
+  readonly imageUrl: string | null;
+}

@@ -1,0 +1,645 @@
+<main class="staff-order-page">
+  <header class="page-header">
+    <div>
+      <span>Gestione operativa</span>
+      <h1>Modifica ordine</h1>
+
+      <p>
+        Modifica cliente, servizio,
+        tavolo oppure contenuto
+        della comanda.
+      </p>
+    </div>
+
+    <a routerLink="/staff/orders">
+      Gestione ordini
+    </a>
+  </header>
+
+  @if (loading()) {
+    <section
+      class="feedback"
+      aria-live="polite"
+    >
+      <div
+        class="loader"
+        aria-hidden="true"
+      ></div>
+
+      <p>Caricamento dell’ordine...</p>
+    </section>
+  } @else if (
+    loadError();
+    as message
+    ) {
+    <section
+      class="feedback feedback--error"
+      role="alert"
+    >
+      <h2>
+        Impossibile caricare l’ordine
+      </h2>
+
+      <p>{{ message }}</p>
+
+      <button
+        type="button"
+        (click)="loadOrder()"
+      >
+        Riprova
+      </button>
+    </section>
+  } @else if (
+    updatedOrder();
+    as updated
+    ) {
+    <section
+      class="order-success"
+      role="status"
+    >
+      <div
+        class="order-success__icon"
+        aria-hidden="true"
+      >
+        ✓
+      </div>
+
+      <span>Ordine aggiornato</span>
+
+      <h2>
+        Le modifiche alla comanda
+        sono state salvate.
+      </h2>
+
+      <p class="order-success__id">
+        Codice ordine: {{ updated.id }}
+      </p>
+
+      <dl>
+        <div>
+          <dt>Cliente</dt>
+          <dd>{{ updated.user.username }}</dd>
+        </div>
+
+        <div>
+          <dt>Servizio</dt>
+
+          <dd>
+            {{
+              orderTypeLabels[
+                updated.orderType
+                ]
+            }}
+          </dd>
+        </div>
+
+        @if (updated.table; as table) {
+          <div>
+            <dt>Tavolo</dt>
+            <dd>Numero {{ table.number }}</dd>
+          </div>
+        }
+
+        <div>
+          <dt>Quantità</dt>
+          <dd>{{ totalQuantity() }}</dd>
+        </div>
+
+        <div>
+          <dt>Totale</dt>
+
+          <dd>
+            {{
+              updated.total
+                | currency
+                : 'EUR'
+                  : 'symbol'
+                  : '1.2-2'
+            }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Stato</dt>
+
+          <dd>
+            {{
+              orderStatusLabels[
+                updated.status
+                ]
+            }}
+          </dd>
+        </div>
+      </dl>
+
+      <div class="order-success__actions">
+        <a routerLink="/staff/orders">
+          Torna alla gestione
+        </a>
+      </div>
+    </section>
+  } @else if (
+    order();
+    as currentOrder
+    ) {
+    @if (!canEdit()) {
+      <section
+        class="blocked-order"
+        role="alert"
+      >
+        <span>
+          Modifica non disponibile
+        </span>
+
+        <h2>
+          Questo ordine non può più
+          essere modificato.
+        </h2>
+
+        <p>
+          Stato ordine:
+          <strong>
+            {{
+              orderStatusLabels[
+                currentOrder.status
+                ]
+            }}
+          </strong>.
+
+          Stato pagamento:
+          <strong>
+            {{
+              paymentStatusLabels[
+                currentOrder.paymentStatus
+                ]
+            }}
+          </strong>.
+        </p>
+
+        <p>
+          Il backend blocca gli ordini
+          serviti, cancellati, già pagati
+          o con pagamento annullato.
+        </p>
+
+        <a routerLink="/staff/orders">
+          Torna alla gestione
+        </a>
+      </section>
+    } @else {
+      <form
+        class="order-layout"
+        [formGroup]="orderForm"
+        (ngSubmit)="submitChanges()"
+      >
+        <div class="order-content">
+          <section class="configuration-card">
+            <h2>Cliente e servizio</h2>
+
+            <div class="form-field">
+              <label for="edit-order-customer">
+                Cliente
+              </label>
+
+              <select
+                id="edit-order-customer"
+                formControlName="userId"
+              >
+                <option
+                  value=""
+                  disabled
+                >
+                  Seleziona un cliente
+                </option>
+
+                @for (
+                  customer of customers();
+                  track customer.id
+                  ) {
+                  <option [value]="customer.id">
+                    {{ customer.username }}
+                    —
+                    {{ customer.email }}
+                  </option>
+                }
+              </select>
+
+              @if (
+                userIdControl.touched &&
+                userIdControl.hasError(
+                  'required'
+                )
+                ) {
+                <p class="field-error">
+                  Seleziona il cliente.
+                </p>
+              } @else if (
+                userIdControl.touched &&
+                userIdControl.hasError(
+                  'unavailable'
+                )
+                ) {
+                <p class="field-error">
+                  Il cliente non è disponibile.
+                </p>
+              }
+            </div>
+
+            <fieldset class="order-types">
+              <legend>
+                Tipo di servizio
+              </legend>
+
+              <label
+                class="order-type"
+                [class.order-type--selected]="
+                  selectedOrderType() ===
+                  orderType.TAKE_AWAY
+                "
+              >
+                <input
+                  type="radio"
+                  formControlName="orderType"
+                  [value]="
+                    orderType.TAKE_AWAY
+                  "
+                />
+
+                <span>
+                  <strong>Asporto</strong>
+
+                  <small>
+                    L’ordine non viene
+                    associato a un tavolo.
+                  </small>
+                </span>
+              </label>
+
+              <label
+                class="order-type"
+                [class.order-type--selected]="
+                  selectedOrderType() ===
+                  orderType.ON_THE_TABLE
+                "
+              >
+                <input
+                  type="radio"
+                  formControlName="orderType"
+                  [value]="
+                    orderType.ON_THE_TABLE
+                  "
+                />
+
+                <span>
+                  <strong>Al tavolo</strong>
+
+                  <small>
+                    Seleziona uno dei tavoli
+                    attualmente attivi.
+                  </small>
+                </span>
+              </label>
+            </fieldset>
+
+            @if (tableOrderSelected()) {
+              <div class="form-field">
+                <label for="edit-order-table">
+                  Tavolo
+                </label>
+
+                <select
+                  id="edit-order-table"
+                  formControlName="tableId"
+                >
+                  <option
+                    value=""
+                    disabled
+                  >
+                    Seleziona un tavolo
+                  </option>
+
+                  @for (
+                    table of tables();
+                    track table.id
+                    ) {
+                    <option [value]="table.id">
+                      Tavolo {{ table.number }}
+                      —
+                      {{ table.seats }} posti
+                    </option>
+                  }
+                </select>
+
+                @if (tables().length === 0) {
+                  <p class="field-error">
+                    Non ci sono tavoli attivi.
+                  </p>
+                } @else if (
+                  tableIdControl.touched &&
+                  tableIdControl.hasError(
+                    'required'
+                  )
+                  ) {
+                  <p class="field-error">
+                    Seleziona un tavolo.
+                  </p>
+                } @else if (
+                  tableIdControl.touched &&
+                  tableIdControl.hasError(
+                    'unavailable'
+                  )
+                  ) {
+                  <p class="field-error">
+                    Il tavolo non è disponibile.
+                  </p>
+                }
+              </div>
+            }
+          </section>
+
+          <section class="current-order-info">
+            <div>
+              <span>Codice ordine</span>
+              <strong>{{ currentOrder.id }}</strong>
+            </div>
+
+            <div>
+              <span>Stato</span>
+
+              <strong>
+                {{
+                  orderStatusLabels[
+                    currentOrder.status
+                    ]
+                }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Pagamento</span>
+
+              <strong>
+                {{
+                  paymentStatusLabels[
+                    currentOrder.paymentStatus
+                    ]
+                }}
+              </strong>
+            </div>
+          </section>
+
+          <section
+            class="dish-picker"
+            aria-labelledby="edit-dishes-title"
+          >
+            <header>
+              <div>
+                <span>Composizione</span>
+
+                <h2 id="edit-dishes-title">
+                  Modifica i piatti
+                </h2>
+              </div>
+
+              <strong>
+                {{ totalQuantity() }}
+                selezionati
+              </strong>
+            </header>
+
+            <div class="dishes-grid">
+              @for (
+                dish of dishes();
+                track dish.id
+                ) {
+                <article
+                  class="dish-card"
+                  [class.dish-card--selected]="
+                    quantityFor(dish.id) > 0
+                  "
+                  [class.dish-card--unavailable]="
+                    !dish.available
+                  "
+                >
+                  <div class="dish-card__content">
+                    <span>
+                      {{
+                        categoryLabels[
+                          dish.category
+                          ]
+                      }}
+                    </span>
+
+                    <h3>{{ dish.name }}</h3>
+
+                    <p>
+                      {{
+                        dish.description ||
+                        'Nessuna descrizione.'
+                      }}
+                    </p>
+
+                    <strong>
+                      {{
+                        dish.price
+                          | currency
+                          : 'EUR'
+                            : 'symbol'
+                            : '1.2-2'
+                      }}
+                    </strong>
+
+                    @if (!dish.available) {
+                      <small
+                        class="unavailable-label"
+                      >
+                        Non disponibile
+                      </small>
+                    }
+                  </div>
+
+                  @if (
+                    quantityFor(dish.id) === 0
+                    ) {
+                    <button
+                      class="add-dish-button"
+                      type="button"
+                      [disabled]="!dish.available"
+                      (click)="
+                        increaseDish(dish.id)
+                      "
+                    >
+                      {{
+                        dish.available
+                          ? 'Aggiungi'
+                          : 'Non disponibile'
+                      }}
+                    </button>
+                  } @else {
+                    <div class="quantity-control">
+                      <button
+                        type="button"
+                        (click)="
+                          decreaseDish(dish.id)
+                        "
+                      >
+                        −
+                      </button>
+
+                      <strong>
+                        {{ quantityFor(dish.id) }}
+                      </strong>
+
+                      <button
+                        type="button"
+                        [disabled]="!dish.available"
+                        (click)="
+                          increaseDish(dish.id)
+                        "
+                      >
+                        +
+                      </button>
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+          </section>
+        </div>
+
+        <aside class="order-summary">
+          <span>Riepilogo</span>
+          <h2>Comanda aggiornata</h2>
+
+          @if (
+            selectedLines().length === 0
+            ) {
+            <p class="empty-summary">
+              Aggiungi almeno un piatto.
+            </p>
+          } @else {
+            <ul>
+              @for (
+                line of selectedLines();
+                track line.dish.id
+                ) {
+                <li>
+                  <div>
+                    <span>
+                      {{ line.quantity }}
+                      ×
+                      {{ line.dish.name }}
+                    </span>
+
+                    @if (
+                      !line.dish.available
+                      ) {
+                      <small
+                        class="unavailable-line"
+                      >
+                        Non disponibile
+                      </small>
+                    }
+
+                    <button
+                      type="button"
+                      (click)="
+                        removeDish(line.dish.id)
+                      "
+                    >
+                      Rimuovi
+                    </button>
+                  </div>
+
+                  <strong>
+                    {{
+                      line.dish.price *
+                      line.quantity
+                        | currency
+                        : 'EUR'
+                          : 'symbol'
+                          : '1.2-2'
+                    }}
+                  </strong>
+                </li>
+              }
+            </ul>
+          }
+
+          <dl>
+            <div>
+              <dt>Quantità</dt>
+              <dd>{{ totalQuantity() }}</dd>
+            </div>
+
+            <div class="order-summary__total">
+              <dt>Totale stimato</dt>
+
+              <dd>
+                {{
+                  totalPrice()
+                    | currency
+                    : 'EUR'
+                      : 'symbol'
+                      : '1.2-2'
+                }}
+              </dd>
+            </div>
+          </dl>
+
+          @if (
+            hasUnavailableSelectedDishes()
+            ) {
+            <p
+              class="availability-warning"
+              role="alert"
+            >
+              Rimuovi i piatti non disponibili
+              prima di salvare.
+            </p>
+          }
+
+          @if (
+            submitError();
+            as message
+            ) {
+            <p
+              class="submit-error"
+              role="alert"
+            >
+              {{ message }}
+            </p>
+          }
+
+          <button
+            class="submit-button"
+            type="submit"
+            [disabled]="
+              submitting() ||
+              orderForm.invalid ||
+              selectedLines().length === 0 ||
+              hasUnavailableSelectedDishes() ||
+              (
+                tableOrderSelected() &&
+                tables().length === 0
+              )
+            "
+          >
+            {{
+              submitting()
+                ? 'Salvataggio...'
+                : 'Salva modifiche'
+            }}
+          </button>
+
+          <a
+            class="cancel-edit-link"
+            routerLink="/staff/orders"
+          >
+            Annulla modifiche
+          </a>
+        </aside>
+      </form>
+    }
+  }
+</main>

@@ -1,0 +1,256 @@
+<main class="assistance-page">
+  <header class="page-header">
+    <span>Siamo qui per te</span>
+
+    <h1>Richiedi assistenza</h1>
+
+    <p>
+      Seleziona il tuo tavolo e comunica
+      al personale di cosa hai bisogno.
+    </p>
+  </header>
+
+  @if (createdRequest(); as request) {
+    <section
+      class="request-success"
+      role="status"
+    >
+      <div
+        class="request-success__icon"
+        aria-hidden="true"
+      >
+        ✓
+      </div>
+
+      <span>Richiesta inviata</span>
+
+      <h2>
+        Un cameriere riceverà la tua richiesta.
+      </h2>
+
+      <dl>
+        <div>
+          <dt>Tavolo</dt>
+
+          <dd>
+            Numero {{ request.table.number }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Stato</dt>
+
+          <dd>
+            {{ statusLabels[request.status] }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Inviata</dt>
+
+          <dd>
+            {{
+              request.createdAt
+                | date: 'dd/MM/yyyy HH:mm'
+            }}
+          </dd>
+        </div>
+      </dl>
+
+      <blockquote>
+        “{{ request.message }}”
+      </blockquote>
+
+      <div class="request-success__actions">
+        <button
+          type="button"
+          (click)="createAnotherRequest()"
+        >
+          Nuova richiesta
+        </button>
+
+        <a routerLink="/menu">
+          Torna al menu
+        </a>
+      </div>
+    </section>
+  } @else {
+    <div class="assistance-layout">
+      <form
+        class="assistance-form"
+        [formGroup]="assistanceForm"
+        (ngSubmit)="submitAssistanceRequest()"
+      >
+        <h2>Dettagli della richiesta</h2>
+
+        <div class="form-field">
+          <label for="assistance-table">
+            Il tuo tavolo
+          </label>
+
+          @if (loadingTables()) {
+            <p class="field-message">
+              Caricamento dei tavoli...
+            </p>
+          } @else if (
+            tablesError();
+            as message
+            ) {
+            <div
+              class="table-error"
+              role="alert"
+            >
+              <p>{{ message }}</p>
+
+              <button
+                type="button"
+                (click)="loadTables()"
+              >
+                Riprova
+              </button>
+            </div>
+          } @else {
+            <select
+              id="assistance-table"
+              formControlName="tableId"
+            >
+              <option
+                value=""
+                disabled
+              >
+                Seleziona il tavolo
+              </option>
+
+              @for (
+                table of tables();
+                track table.id
+                ) {
+                <option [value]="table.id">
+                  Tavolo {{ table.number }}
+                  — {{ table.seats }} posti
+                </option>
+              }
+            </select>
+
+            @if (tables().length === 0) {
+              <p class="field-error">
+                Non ci sono tavoli attivi.
+              </p>
+            } @else if (
+              tableIdControl.touched &&
+              tableIdControl.hasError(
+                'required'
+              )
+              ) {
+              <p class="field-error">
+                Seleziona il tuo tavolo.
+              </p>
+            }
+          }
+        </div>
+
+        <fieldset class="quick-messages">
+          <legend>Messaggi rapidi</legend>
+
+          <div>
+            @for (
+              message of quickMessages;
+              track message
+              ) {
+              <button
+                type="button"
+                [class.quick-messages__selected]="
+                  messageControl.value ===
+                  message
+                "
+                (click)="
+                  useQuickMessage(message)
+                "
+              >
+                {{ message }}
+              </button>
+            }
+          </div>
+        </fieldset>
+
+        <div class="form-field">
+          <label for="assistance-message">
+            Messaggio
+          </label>
+
+          <textarea
+            id="assistance-message"
+            rows="5"
+            formControlName="message"
+            placeholder="
+              Descrivi brevemente di cosa hai bisogno...
+            "
+          ></textarea>
+
+          @if (
+            messageControl.touched &&
+            messageControl.invalid
+            ) {
+            <p class="field-error">
+              Scrivi un messaggio.
+            </p>
+          }
+        </div>
+
+        @if (submitError(); as message) {
+          <p
+            class="submit-error"
+            role="alert"
+          >
+            {{ message }}
+          </p>
+        }
+
+        <button
+          class="submit-button"
+          type="submit"
+          [disabled]="
+            submitting() ||
+            loadingTables() ||
+            assistanceForm.invalid ||
+            tables().length === 0
+          "
+        >
+          {{
+            submitting()
+              ? 'Invio in corso...'
+              : 'Invia richiesta'
+          }}
+        </button>
+      </form>
+
+      <aside class="assistance-info">
+        <h2>Come funziona?</h2>
+
+        <ol>
+          <li>
+            Seleziona il numero indicato
+            sul tuo tavolo.
+          </li>
+
+          <li>
+            Scegli un messaggio rapido
+            oppure scrivine uno.
+          </li>
+
+          <li>
+            Invia la richiesta al personale
+            di sala.
+          </li>
+        </ol>
+
+        <p>
+          La richiesta verrà inviata con
+          stato <strong>In attesa</strong>.
+          Un cameriere potrà poi
+          contrassegnarla come risolta.
+        </p>
+      </aside>
+    </div>
+  }
+</main>
