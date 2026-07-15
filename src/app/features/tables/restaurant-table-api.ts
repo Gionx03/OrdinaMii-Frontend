@@ -55,4 +55,11 @@ export class RestaurantTableApi {
   deleteTable(id: string): Observable<RestaurantTable> {
     return this.http.delete<RestaurantTable>(`${this.tablesUrl}/${encodeURIComponent(id)}`);
   }
+
+  reactivateTable(id: string): Observable<RestaurantTable> {
+    return this.http.patch<RestaurantTable>(
+      `${this.tablesUrl}/${encodeURIComponent(id)}/reactivate`,
+      null,
+    );
+  }
 }

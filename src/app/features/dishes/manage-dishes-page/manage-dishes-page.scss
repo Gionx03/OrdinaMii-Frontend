@@ -129,7 +129,47 @@
     font-weight: 650;
   }
 }
+.image-upload-help {
+  color: #756b62 !important;
+  font-weight: 500 !important;
+}
 
+.image-upload-status {
+  margin: 2px 0 0;
+  color: #a64b2a;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.image-upload-error {
+  color: #963737 !important;
+}
+
+.image-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 5px;
+
+  img {
+    width: 150px;
+    height: 100px;
+    border: 1px solid #ddd2c7;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  button {
+    min-height: 39px;
+    border: 1px solid #d9c6bd;
+    border-radius: 8px;
+    background-color: #ffffff;
+    padding: 0 13px;
+    color: #913a30;
+    font-weight: 750;
+    cursor: pointer;
+  }
+}
 .availability-field {
   display: inline-flex;
   align-items: center;

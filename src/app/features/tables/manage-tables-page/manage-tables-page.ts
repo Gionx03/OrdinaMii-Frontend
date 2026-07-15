@@ -51,6 +51,7 @@ export class ManageTablesPage implements OnInit {
   readonly editingTable = signal<RestaurantTable | null>(null);
   readonly saving = signal(false);
   readonly deletingTableId = signal<string | null>(null);
+  readonly reactivatingTableId = signal<string | null>(null);
 
   readonly filtersForm = new FormGroup({
     active: new FormControl<TableStatusFilter>('true', {
@@ -206,7 +207,7 @@ export class ManageTablesPage implements OnInit {
   }
 
   disableTable(table: RestaurantTable): void {
-    if (!table.active || this.deletingTableId()) {
+    if (!table.active || this.deletingTableId() || this.reactivatingTableId()) {
       return;
     }
 
@@ -234,6 +235,42 @@ export class ManageTablesPage implements OnInit {
 
           this.actionError.set(
             getApiErrorMessage(error, 'Non è stato possibile disattivare il tavolo.'),
+          );
+        },
+      });
+  }
+
+  reactivateTable(table: RestaurantTable): void {
+    if (table.active || this.reactivatingTableId() || this.deletingTableId()) {
+      return;
+    }
+
+    const confirmed = window.confirm(`Vuoi riattivare il tavolo ${table.number}?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.reactivatingTableId.set(table.id);
+    this.actionError.set(null);
+
+    this.tableApi
+      .reactivateTable(table.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.reactivatingTableId.set(null)),
+      )
+      .subscribe({
+        next: () => {
+          // Con il filtro "Disattivati" il tavolo
+          // appena riattivato deve scomparire dalla lista.
+          this.loadTables(0);
+        },
+        error: (error: unknown) => {
+          console.error('Errore durante la riattivazione del tavolo.', error);
+
+          this.actionError.set(
+            getApiErrorMessage(error, 'Non è stato possibile riattivare il tavolo.'),
           );
         },
       });

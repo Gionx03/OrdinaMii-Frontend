@@ -46,3 +46,7 @@ export interface UpsertDishPayload {
   readonly available: boolean;
   readonly imageUrl: string | null;
 }
+
+export interface DishImageUploadResponse {
+  readonly imageUrl: string;
+}

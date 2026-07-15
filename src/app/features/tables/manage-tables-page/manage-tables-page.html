@@ -50,9 +50,8 @@
 
       @if (editingTable() && !editingTable()?.active) {
         <p class="editor-note">
-          Questo tavolo è disattivato. Il backend permette
-          di modificarne i dati, ma non dispone ancora di
-          un'operazione per riattivarlo.
+          Questo tavolo è disattivato. Puoi modificarne i
+          dati oppure riattivarlo dall’elenco sottostante.
         </p>
       }
 
@@ -261,14 +260,31 @@
                   class="delete-button"
                   type="button"
                   [disabled]="
-                    deletingTableId() !== null
-                  "
+      deletingTableId() !== null ||
+      reactivatingTableId() !== null
+    "
                   (click)="disableTable(table)"
                 >
                   {{
                     deletingTableId() === table.id
                       ? 'Disattivazione...'
                       : 'Disattiva'
+                  }}
+                </button>
+              } @else {
+                <button
+                  class="reactivate-button"
+                  type="button"
+                  [disabled]="
+                    reactivatingTableId() !== null ||
+                    deletingTableId() !== null
+                  "
+                  (click)="reactivateTable(table)"
+                >
+                  {{
+                    reactivatingTableId() === table.id
+                      ? 'Riattivazione...'
+                      : 'Riattiva'
                   }}
                 </button>
               }

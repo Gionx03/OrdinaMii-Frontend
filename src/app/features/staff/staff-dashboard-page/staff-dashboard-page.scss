@@ -143,35 +143,6 @@
   }
 }
 
-.dashboard-note {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  margin-top: 25px;
-  border: 1px solid #ded3c7;
-  border-radius: 12px;
-  background-color: #eee8e1;
-  padding: 15px 17px;
-
-  div {
-    display: grid;
-    width: 28px;
-    height: 28px;
-    flex-shrink: 0;
-    place-items: center;
-    border-radius: 50%;
-    background-color: #6d645c;
-    color: #ffffff;
-    font-weight: 850;
-  }
-
-  p {
-    margin: 0;
-    color: #645b53;
-    font-size: 0.84rem;
-    line-height: 1.5;
-  }
-}
 
 @media (max-width: 720px) {
   .dashboard-header {
@@ -182,6 +153,8 @@
       align-self: flex-start;
     }
   }
+}
+
   .operational-overview {
     margin-bottom: 32px;
     border: 1px solid #e3d9ce;
@@ -396,6 +369,7 @@
     }
   }
 
+@media (max-width: 720px) {
   .actions-grid {
     grid-template-columns: 1fr;
   }

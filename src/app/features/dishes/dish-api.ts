@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { PageResponse } from '../../core/http/page-response';
 import { environment } from '../../../environments/environment';
-import { Dish, DishFilters, UpsertDishPayload } from './dish';
+import { Dish, DishFilters, DishImageUploadResponse, UpsertDishPayload } from './dish';
 
 @Injectable({
   providedIn: 'root',
@@ -40,9 +40,7 @@ export class DishApi {
       params = params.set('available', filters.available);
     }
 
-    return this.http.get<PageResponse<Dish>>(this.dishesUrl, {
-      params,
-    });
+    return this.http.get<PageResponse<Dish>>(this.dishesUrl, { params });
   }
 
   getDishById(id: string): Observable<Dish> {
@@ -51,6 +49,13 @@ export class DishApi {
 
   createDish(request: UpsertDishPayload): Observable<Dish> {
     return this.http.post<Dish>(this.dishesUrl, request);
+  }
+
+  uploadImage(file: File): Observable<DishImageUploadResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<DishImageUploadResponse>(`${this.dishesUrl}/images`, formData);
   }
 
   updateDish(id: string, request: UpsertDishPayload): Observable<Dish> {

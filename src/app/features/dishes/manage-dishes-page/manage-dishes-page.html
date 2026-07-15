@@ -38,7 +38,7 @@
 
         <button
           type="button"
-          [disabled]="saving()"
+          [disabled]="saving() || uploadingImage()"
           (click)="closeEditor()"
         >
           Chiudi
@@ -109,16 +109,63 @@
         </div>
 
         <div class="form-field form-field--wide">
-          <label for="dish-image-url">
-            URL immagine
+          <label for="dish-image-file">
+            Immagine del piatto
           </label>
 
           <input
-            id="dish-image-url"
-            type="text"
-            formControlName="imageUrl"
-            placeholder="/images/dishes/nome-piatto.jpg"
+            id="dish-image-file"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+            [disabled]="uploadingImage() || saving()"
+            (change)="onImageSelected($event)"
           />
+
+          <input
+            type="hidden"
+            formControlName="imageUrl"
+          />
+
+          <small class="image-upload-help">
+            Formati accettati: JPG, PNG e WEBP.
+            Dimensione massima: 5 MB.
+          </small>
+
+          @if (uploadingImage()) {
+            <p
+              class="image-upload-status"
+              aria-live="polite"
+            >
+              Caricamento immagine in corso...
+            </p>
+          }
+
+          @if (imageUploadError(); as message) {
+            <small
+              class="image-upload-error"
+              role="alert"
+            >
+              {{ message }}
+            </small>
+          }
+
+          @if (editorImagePreviewUrl(); as imageSource) {
+            <div class="image-preview">
+              <img
+                [src]="imageSource"
+                alt="Anteprima dell’immagine del piatto"
+                (error)="hideBrokenImage($event)"
+              />
+
+              <button
+                type="button"
+                [disabled]="uploadingImage() || saving()"
+                (click)="removeImage()"
+              >
+                Rimuovi immagine
+              </button>
+            </div>
+          }
         </div>
 
         <label class="availability-field">
@@ -134,7 +181,7 @@
           <button
             class="secondary-button"
             type="button"
-            [disabled]="saving()"
+            [disabled]="saving() || uploadingImage()"
             (click)="closeEditor()"
           >
             Annulla
@@ -142,7 +189,7 @@
 
           <button
             type="submit"
-            [disabled]="saving()"
+            [disabled]="saving() || uploadingImage()"
           >
             {{
               saving()

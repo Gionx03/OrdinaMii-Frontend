@@ -35,6 +35,10 @@ import { DishApi } from '../dish-api';
 
 type AvailabilityFilter = 'true' | 'false';
 
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
 @Component({
   selector: 'app-manage-dishes-page',
   imports: [CurrencyPipe, ReactiveFormsModule],
@@ -68,6 +72,10 @@ export class ManageDishesPage implements OnInit {
   readonly editingDish = signal<Dish | null>(null);
   readonly saving = signal(false);
   readonly deletingDishId = signal<string | null>(null);
+
+  readonly uploadingImage = signal(false);
+  readonly imageUploadError = signal<string | null>(null);
+  readonly editorImagePreviewUrl = signal<string | null>(null);
 
   readonly canDelete = computed(
     () => this.authService.authenticated() && this.authService.hasRole(APP_ROLE.ADMIN),
@@ -169,6 +177,8 @@ export class ManageDishesPage implements OnInit {
   startCreate(): void {
     this.editingDish.set(null);
     this.actionError.set(null);
+    this.imageUploadError.set(null);
+    this.editorImagePreviewUrl.set(null);
 
     this.editorForm.reset({
       name: '',
@@ -185,6 +195,8 @@ export class ManageDishesPage implements OnInit {
   startEdit(dish: Dish): void {
     this.editingDish.set(dish);
     this.actionError.set(null);
+    this.imageUploadError.set(null);
+    this.editorImagePreviewUrl.set(this.resolveImageUrl(dish.imageUrl));
 
     this.editorForm.reset({
       name: dish.name,
@@ -199,19 +211,81 @@ export class ManageDishesPage implements OnInit {
   }
 
   closeEditor(): void {
-    if (this.saving()) {
+    if (this.saving() || this.uploadingImage()) {
       return;
     }
 
     this.editorOpen.set(false);
     this.editingDish.set(null);
+    this.imageUploadError.set(null);
+    this.editorImagePreviewUrl.set(null);
     this.editorForm.reset();
   }
+  onImageSelected(event: Event): void {
+    const input = event.target;
 
+    if (!(input instanceof HTMLInputElement)) {
+      return;
+    }
+
+    const file = input.files?.[0];
+
+    // Permette di riselezionare lo stesso file.
+    input.value = '';
+
+    if (!file || this.uploadingImage()) {
+      return;
+    }
+
+    this.imageUploadError.set(null);
+
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      this.imageUploadError.set('Formato non supportato. Usa JPG, PNG oppure WEBP.');
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      this.imageUploadError.set('L’immagine non può superare 5 MB.');
+      return;
+    }
+
+    this.uploadingImage.set(true);
+
+    this.dishApi
+      .uploadImage(file)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.uploadingImage.set(false)),
+      )
+      .subscribe({
+        next: (response) => {
+          this.editorForm.controls.imageUrl.setValue(response.imageUrl);
+
+          this.editorImagePreviewUrl.set(this.resolveImageUrl(response.imageUrl));
+        },
+        error: (error: unknown) => {
+          console.error('Errore durante il caricamento dell’immagine.', error);
+
+          this.imageUploadError.set(
+            getApiErrorMessage(error, 'Non è stato possibile caricare l’immagine.'),
+          );
+        },
+      });
+  }
+
+  removeImage(): void {
+    if (this.uploadingImage() || this.saving()) {
+      return;
+    }
+
+    this.editorForm.controls.imageUrl.setValue('');
+    this.editorImagePreviewUrl.set(null);
+    this.imageUploadError.set(null);
+  }
   saveDish(): void {
     this.actionError.set(null);
 
-    if (this.saving()) {
+    if (this.saving() || this.uploadingImage()) {
       return;
     }
 
@@ -253,6 +327,8 @@ export class ManageDishesPage implements OnInit {
         next: () => {
           this.editorOpen.set(false);
           this.editingDish.set(null);
+          this.imageUploadError.set(null);
+          this.editorImagePreviewUrl.set(null);
 
           this.loadDishes(editingDish ? this.currentPage() : 0);
         },
