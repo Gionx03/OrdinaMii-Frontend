@@ -1,25 +1,28 @@
 <article class="dish-card">
-  <div class="dish-card__image-container">
-    @if (imageUrl(); as source) {
-      <img
-        class="dish-card__image"
-        [src]="source"
-        [alt]="dish().name"
-        loading="lazy"
-        (error)="markImageAsUnavailable()"
-      />
-    } @else {
-      <div class="dish-card__placeholder">
-        <span>Nessuna immagine</span>
-      </div>
-    }
-  </div>
-
-  <div class="dish-card__content">
+  <div class="dish-card__image-stage">
     <span class="dish-card__category">
       {{ categoryLabel() }}
     </span>
 
+    <div class="dish-card__image-container">
+      @if (imageUrl(); as source) {
+        <img
+          class="dish-card__image"
+          [src]="source"
+          [alt]="dish().name"
+          loading="lazy"
+          (error)="markImageAsUnavailable()"
+        />
+      } @else {
+        <div class="dish-card__placeholder">
+          <span aria-hidden="true">○</span>
+          <small>Nessuna immagine</small>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="dish-card__content">
     <h2 class="dish-card__name">
       {{ dish().name }}
     </h2>
@@ -32,16 +35,20 @@
     </p>
 
     <footer class="dish-card__footer">
-      <strong class="dish-card__price">
-        {{
-          dish().price
-            | currency: 'EUR' : 'symbol' : '1.2-2'
-        }}
-      </strong>
+      <div class="dish-card__price-group">
+        <small>Prezzo</small>
+
+        <strong class="dish-card__price">
+          {{
+            dish().price
+              | currency: 'EUR' : 'symbol' : '1.2-2'
+          }}
+        </strong>
+      </div>
 
       @if (!dish().available) {
         <span class="dish-card__unavailable">
-          Non disponibile
+          Esaurito
         </span>
       } @else if (orderingEnabled()) {
         <button
@@ -50,13 +57,27 @@
             addedFeedback()
           "
           type="button"
+          [attr.aria-label]="
+            addedFeedback()
+              ? dish().name + ' aggiunto al carrello'
+              : 'Aggiungi ' +
+                dish().name +
+                ' al carrello'
+          "
+          [title]="
+            addedFeedback()
+              ? 'Aggiunto'
+              : 'Aggiungi al carrello'
+          "
           (click)="requestAddToCart()"
         >
-          {{
-            addedFeedback()
-              ? 'Aggiunto ✓'
-              : 'Aggiungi'
-          }}
+          <span aria-hidden="true">
+            {{
+              addedFeedback()
+                ? '✓'
+                : '+'
+            }}
+          </span>
         </button>
       }
     </footer>

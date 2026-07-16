@@ -2,8 +2,8 @@
   <div class="app-header__inner">
     <a
       class="brand"
-      routerLink="/menu"
-      aria-label="OrdinaMii - Vai al menu"
+      routerLink="/"
+      aria-label="OrdinaMii - Vai alla home"
     >
       <span
         class="brand__mark"
@@ -20,12 +20,38 @@
       aria-label="Navigazione principale"
     >
       <a
+        routerLink="/"
+        routerLinkActive="navigation__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Home
+      </a>
+
+      <a
         routerLink="/menu"
         routerLinkActive="navigation__link--active"
         [routerLinkActiveOptions]="{ exact: true }"
       >
         Menu
       </a>
+
+      @if (!authenticated() || isCustomer()) {
+        <a
+          routerLink="/my-orders"
+          routerLinkActive="navigation__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Ordini
+        </a>
+
+        <a
+          routerLink="/my-reservations"
+          routerLinkActive="navigation__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Prenotazioni
+        </a>
+      }
 
       @if (authenticated()) {
         <a
@@ -38,22 +64,6 @@
       }
 
       @if (isCustomer()) {
-        <a
-          routerLink="/my-reservations"
-          routerLinkActive="navigation__link--active"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >
-          Prenotazioni
-        </a>
-
-        <a
-          routerLink="/my-orders"
-          routerLinkActive="navigation__link--active"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >
-          I miei ordini
-        </a>
-
         <a
           routerLink="/assistance"
           routerLinkActive="navigation__link--active"
@@ -69,16 +79,16 @@
           data-cart-target
           aria-live="polite"
           [attr.aria-label]="
-            'Carrello, ' +
-            cartQuantity() +
-            ' articoli'
-          "
+        'Carrello, ' +
+        cartQuantity() +
+        ' articoli'
+      "
         >
           Carrello
 
           <span class="cart-indicator__badge">
-            {{ cartQuantity() }}
-          </span>
+        {{ cartQuantity() }}
+      </span>
         </a>
       }
 
@@ -120,10 +130,16 @@
         </button>
       } @else {
         <button
-          class="
-            session-button
-            session-button--primary
-          "
+          class="session-button session-button--secondary"
+          type="button"
+          [disabled]="actionPending()"
+          (click)="register()"
+        >
+          Registrati
+        </button>
+
+        <button
+          class="session-button session-button--primary"
           type="button"
           [disabled]="actionPending()"
           (click)="login()"

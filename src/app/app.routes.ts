@@ -8,7 +8,9 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'menu',
+    title: 'OrdinaMii',
+    loadComponent: () =>
+      import('./features/home/home-page/home-page').then(({ HomePage }) => HomePage),
   },
   {
     path: 'menu',

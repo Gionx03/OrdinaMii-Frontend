@@ -116,7 +116,7 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   NOT_PAID: 'Non pagato',
-  PENDING: 'Pagamento in attesa',
+  PENDING: 'Pagamento al tavolo richiesto',
   PAID: 'Pagato',
   PAY_AT_COUNTER: 'Pagamento alla cassa',
   CANCELLED: 'Pagamento annullato',

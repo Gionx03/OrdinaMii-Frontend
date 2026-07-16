@@ -39,6 +39,14 @@ export class AuthService {
       redirectUri: new URL(redirectUri, window.location.origin).toString(),
     });
   }
+  async register(redirectUri: string = window.location.href,): Promise<void> {
+    await keycloakClient.register({
+      redirectUri: new URL(
+        redirectUri,
+        window.location.origin,
+      ).toString(),
+    });
+  }
 
   async logout(): Promise<void> {
     await keycloakClient.logout({

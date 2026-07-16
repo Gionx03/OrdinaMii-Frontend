@@ -1,0 +1,273 @@
+<main class="home-page">
+  <section
+    class="hero"
+    aria-labelledby="home-title"
+  >
+    <div class="hero__content">
+      <span class="eyebrow">
+        OrdinaMii · Cosenza
+      </span>
+
+      <h1 id="home-title">
+        Tradizione calabrese,
+        <span>
+          servita con un tocco contemporaneo.
+        </span>
+      </h1>
+
+      <p class="hero__description">
+        Una cucina fatta di ingredienti locali,
+        ricette di famiglia e piatti preparati ogni
+        giorno. Accomodati: al resto pensiamo noi.
+      </p>
+
+      <div class="hero__actions">
+        <a
+          class="home-button home-button--primary"
+          routerLink="/menu"
+        >
+          Scopri il menu
+          <span aria-hidden="true">→</span>
+        </a>
+
+        <a
+          class="home-button home-button--secondary"
+          routerLink="/reservations/new"
+        >
+          Prenota un tavolo
+        </a>
+      </div>
+
+      <ul
+        class="hero__facts"
+        aria-label="Caratteristiche del ristorante"
+      >
+        <li>
+          <strong>Km 0</strong>
+          <span>Materie prime locali</span>
+        </li>
+
+        <li>
+          <strong>Dal 1998</strong>
+          <span>Tradizione di famiglia</span>
+        </li>
+
+        <li>
+          <strong>4,8/5</strong>
+          <span>Ospiti soddisfatti</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="hero__visual">
+      <div class="hero__image-frame">
+        <img
+          [src]="heroImageUrl"
+          alt="Tagliata di manzo servita all'Osteria del Borgo"
+        />
+      </div>
+
+      <div class="hero__dish-note">
+        <span aria-hidden="true">★</span>
+
+        <div>
+          <small>Il consiglio dello chef</small>
+          <strong>Tagliata di manzo</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="story"
+    aria-labelledby="story-title"
+  >
+    <div class="section-heading">
+      <span class="eyebrow">
+        La nostra storia
+      </span>
+
+      <h2 id="story-title">
+        Il calore di casa, nel cuore della città.
+      </h2>
+    </div>
+
+    <div class="story__content">
+      <p>
+        OrdinaMii nasce dall'idea di riportare
+        in tavola i sapori semplici della cucina calabrese.
+        Pasta fresca, verdure di stagione, carne selezionata
+        e dolci preparati nella nostra cucina.
+      </p>
+
+      <p>
+        Il menu segue le stagioni e unisce ricette
+        tradizionali a una presentazione moderna,
+        in un ambiente informale e accogliente.
+      </p>
+    </div>
+  </section>
+
+  <section
+    class="services"
+    aria-labelledby="services-title"
+  >
+    <div class="section-heading section-heading--centered">
+      <span class="eyebrow">
+        Tutto a portata di click
+      </span>
+
+      <h2 id="services-title">
+        Come possiamo accoglierti?
+      </h2>
+
+      <p>
+        Consulta i piatti, controlla i tuoi ordini
+        oppure gestisci le prenotazioni dalla tua
+        area personale.
+      </p>
+    </div>
+
+    <div class="services__grid">
+      <a
+        class="service-card service-card--orange"
+        routerLink="/menu"
+      >
+        <span class="service-card__number">
+          01
+        </span>
+
+        <span
+          class="service-card__icon"
+          aria-hidden="true"
+        >
+          M
+        </span>
+
+        <div>
+          <h3>Il menu</h3>
+
+          <p>
+            Scopri antipasti, primi, secondi,
+            contorni, dolci e bevande.
+          </p>
+        </div>
+
+        <strong>
+          Esplora il menu
+          <span aria-hidden="true">→</span>
+        </strong>
+      </a>
+
+      <a
+        class="service-card service-card--green"
+        routerLink="/my-orders"
+      >
+        <span class="service-card__number">
+          02
+        </span>
+
+        <span
+          class="service-card__icon"
+          aria-hidden="true"
+        >
+          O
+        </span>
+
+        <div>
+          <h3>I tuoi ordini</h3>
+
+          <p>
+            Controlla lo stato degli ordini
+            e consulta quelli già conclusi.
+          </p>
+        </div>
+
+        <strong>
+          Vai agli ordini
+          <span aria-hidden="true">→</span>
+        </strong>
+      </a>
+
+      <a
+        class="service-card service-card--blue"
+        routerLink="/my-reservations"
+      >
+        <span class="service-card__number">
+          03
+        </span>
+
+        <span
+          class="service-card__icon"
+          aria-hidden="true"
+        >
+          P
+        </span>
+
+        <div>
+          <h3>Le prenotazioni</h3>
+
+          <p>
+            Prenota il tuo tavolo e ritrova tutte
+            le prenotazioni personali.
+          </p>
+        </div>
+
+        <strong>
+          Gestisci prenotazioni
+          <span aria-hidden="true">→</span>
+        </strong>
+      </a>
+    </div>
+  </section>
+
+  <section
+    class="visit"
+    aria-labelledby="visit-title"
+  >
+    <div class="visit__content">
+      <span class="eyebrow">
+        Vieni a trovarci
+      </span>
+
+      <h2 id="visit-title">
+        La tua tavola ti aspetta.
+      </h2>
+
+      <p>
+        Siamo nel centro storico di Cosenza. Prenota online
+        per assicurarti il tavolo.
+      </p>
+
+      <a
+        class="home-button home-button--light"
+        routerLink="/reservations/new"
+      >
+        Prenota adesso
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    <div class="visit__details">
+      <div>
+        <small>Indirizzo</small>
+        <strong>Via dei Sapori 24, Cosenza</strong>
+      </div>
+
+      <div>
+        <small>Pranzo</small>
+        <strong>12:00 – 15:00</strong>
+      </div>
+
+      <div>
+        <small>Cena</small>
+        <strong>19:00 – 23:30</strong>
+      </div>
+
+      <div>
+        <small>Giorno di chiusura</small>
+        <strong>Lunedì</strong>
+      </div>
+    </div>
+  </section>
+</main>

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { PageResponse } from '../../core/http/page-response';
+import { AssistanceRequest } from '../assistance-request/assistance-request';
 import {
   CreateMyOrderRequest,
   MyOrderFilters,
@@ -31,6 +32,24 @@ export class OrderApi {
 
   createMyOrder(request: CreateMyOrderRequest): Observable<Order> {
     return this.http.post<Order>(this.myOrdersUrl, request);
+  }
+
+  payMyOrder(orderId: string): Observable<Order> {
+    return this.http.post<Order>(`${this.myOrdersUrl}/${encodeURIComponent(orderId)}/pay`, null);
+  }
+
+  requestWaiterPayment(orderId: string): Observable<Order> {
+    return this.http.post<Order>(
+      `${this.myOrdersUrl}/${encodeURIComponent(orderId)}/request-payment`,
+      null,
+    );
+  }
+
+  requestAssistanceForOrder(orderId: string): Observable<AssistanceRequest> {
+    return this.http.post<AssistanceRequest>(
+      `${this.myOrdersUrl}/${encodeURIComponent(orderId)}/assistance`,
+      null,
+    );
   }
 
   createOrder(request: CreateStaffOrderRequest): Observable<Order> {

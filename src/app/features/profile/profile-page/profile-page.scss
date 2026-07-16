@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-height: 100%;
-  background-color: #faf7f2;
+  background: transparent;
 }
 
 .profile-page {
@@ -14,19 +14,19 @@
 
     h1 {
       margin: 8px 0 10px;
-      color: #2f2924;
+      color: var(--om-text);
       font-size: clamp(2rem, 5vw, 3.2rem);
     }
 
     p {
       margin: 0;
-      color: #6d645c;
+      color: var(--om-text-muted);
       line-height: 1.6;
     }
   }
 
   &__eyebrow {
-    color: #a64b2a;
+    color: var(--om-accent);
     font-size: 0.8rem;
     font-weight: 800;
     letter-spacing: 0.12em;
@@ -36,10 +36,10 @@
 
 .profile-card,
 .state-card {
-  border: 1px solid #e7ded2;
+  border: 1px solid var(--om-border);
   border-radius: 18px;
-  background-color: #ffffff;
-  box-shadow: 0 8px 24px rgb(61 45 32 / 7%);
+  background-color: var(--om-surface);
+  box-shadow: 0 8px 24px rgb(51 61 42 / 7%);
 }
 
 .profile-card {
@@ -49,17 +49,17 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    border-bottom: 1px solid #eee5db;
+    border-bottom: 1px solid var(--om-bg-soft);
     padding: 28px;
 
     h2 {
       margin: 0 0 5px;
-      color: #2f2924;
+      color: var(--om-text);
       font-size: 1.4rem;
     }
 
     span {
-      color: #786f66;
+      color: var(--om-text-muted);
       font-size: 0.9rem;
       font-weight: 600;
     }
@@ -72,8 +72,8 @@
     flex: 0 0 auto;
     place-items: center;
     border-radius: 16px;
-    background-color: #a64b2a;
-    color: #ffffff;
+    background-color: var(--om-accent);
+    color: var(--om-panna);
     font-size: 1.4rem;
     font-weight: 800;
   }
@@ -88,7 +88,7 @@
 
   dt {
     margin-bottom: 6px;
-    color: #847a71;
+    color: var(--om-text-muted);
     font-size: 0.78rem;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -98,7 +98,7 @@
   dd {
     overflow-wrap: anywhere;
     margin: 0;
-    color: #403a34;
+    color: var(--om-text);
     font-weight: 600;
   }
 }
@@ -107,7 +107,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  border-top: 1px solid #eee5db;
+  border-top: 1px solid var(--om-bg-soft);
   padding: 28px;
 
   &__heading {
@@ -120,19 +120,19 @@
 
     h2 {
       margin: 0;
-      color: #2f2924;
+      color: var(--om-text);
       font-size: 1.2rem;
     }
 
     span {
-      color: #847a71;
+      color: var(--om-text-muted);
       font-size: 0.8rem;
     }
   }
 
   label {
     margin-bottom: 7px;
-    color: #4f473f;
+    color: var(--om-text-soft);
     font-size: 0.85rem;
     font-weight: 700;
   }
@@ -140,26 +140,26 @@
   input {
     width: min(100%, 420px);
     min-height: 44px;
-    border: 1px solid #d8cec2;
+    border: 1px solid var(--om-border);
     border-radius: 10px;
     padding: 0 12px;
-    color: #2f2924;
+    color: var(--om-text);
 
     &:focus {
-      border-color: #a64b2a;
-      outline: 3px solid rgb(166 75 42 / 15%);
+      border-color: var(--om-accent);
+      outline: 3px solid rgb(var(--om-accent-rgb) / 15%);
     }
 
     &[readonly] {
-      background-color: #f3eee8;
-      color: #746c64;
+      background-color: var(--om-surface-soft);
+      color: var(--om-text-muted);
     }
   }
 }
 
 .field-error,
 .form-message--error {
-  color: #a03030;
+  color: var(--om-danger);
 }
 
 .field-error {
@@ -172,7 +172,7 @@
   font-weight: 600;
 
   &--success {
-    color: #267148;
+    color: var(--om-success);
   }
 }
 
@@ -181,9 +181,9 @@
   min-height: 42px;
   border: 0;
   border-radius: 10px;
-  background-color: #a64b2a;
+  background-color: var(--om-accent);
   padding: 0 18px;
-  color: #ffffff;
+  color: var(--om-panna);
   font-weight: 700;
   cursor: pointer;
 
@@ -203,7 +203,7 @@
   place-items: center;
   gap: 18px;
   padding: 32px;
-  color: #6d645c;
+  color: var(--om-text-muted);
   text-align: center;
 
   p {
@@ -211,8 +211,8 @@
   }
 
   &--error {
-    border-color: #e8bebe;
-    color: #922f2f;
+    border-color: rgb(166 80 73 / 28%);
+    color: var(--om-danger);
   }
 }
 
@@ -230,4 +230,34 @@
     align-items: flex-start;
     flex-direction: column;
   }
+}
+
+/* Clear-glass refinement shared by the operational pages. */
+:host :is(
+  .filters,
+  .feedback,
+  .operational-overview,
+  .user-details,
+  .table-editor,
+  [class$='-card'],
+  [class*='-card ']
+) {
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
+  backdrop-filter: blur(18px) saturate(118%);
+}
+
+:host :is(input, select, textarea):focus {
+  border-color: var(--om-border-strong);
+  background-color: var(--om-surface-hover);
+  box-shadow: 0 0 0 4px rgb(var(--om-accent-rgb) / 12%);
+}
+
+:host :is(
+  [class$='-card'],
+  [class*='-card ']
+) {
+  transition:
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-normal) var(--motion-ease),
+    transform var(--motion-normal) var(--motion-ease);
 }

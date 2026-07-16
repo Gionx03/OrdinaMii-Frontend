@@ -38,6 +38,8 @@ export class AppHeader {
       return;
     }
 
+
+
     this.actionPending.set(true);
 
     try {
@@ -48,7 +50,24 @@ export class AppHeader {
       this.actionPending.set(false);
     }
   }
+  async register(): Promise<void> {
+    if (this.actionPending()) {
+      return;
+    }
 
+    this.actionPending.set(true);
+
+    try {
+      await this.authService.register();
+    } catch (error: unknown) {
+      console.error(
+        'Impossibile avviare la registrazione.',
+        error,
+      );
+    } finally {
+      this.actionPending.set(false);
+    }
+  }
   async logout(): Promise<void> {
     if (this.actionPending()) {
       return;

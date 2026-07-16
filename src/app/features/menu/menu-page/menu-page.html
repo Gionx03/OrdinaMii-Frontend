@@ -5,10 +5,47 @@
     <h1>Il nostro menu</h1>
 
     <p>
-      Cerca un piatto oppure seleziona una categoria.
+      Esplora tutti i piatti oppure seleziona una categoria.
     </p>
   </header>
 
+  <!-- Selettore delle categorie -->
+  <nav
+    class="category-selector"
+    aria-label="Categorie del menu"
+  >
+    <button
+      class="category-selector__button"
+      [class.category-selector__button--active]="
+        selectedCategory() === ''
+      "
+      [attr.aria-pressed]="selectedCategory() === ''"
+      type="button"
+      [disabled]="loading()"
+      (click)="selectCategory('')"
+    >
+      Tutti
+    </button>
+
+    @for (category of categories; track category) {
+      <button
+        class="category-selector__button"
+        [class.category-selector__button--active]="
+          selectedCategory() === category
+        "
+        [attr.aria-pressed]="
+          selectedCategory() === category
+        "
+        type="button"
+        [disabled]="loading()"
+        (click)="selectCategory(category)"
+      >
+        {{ categoryLabels[category] }}
+      </button>
+    }
+  </nav>
+
+  <!-- Ricerca per nome -->
   <form
     class="filters"
     [formGroup]="filtersForm"
@@ -22,20 +59,6 @@
         formControlName="name"
         placeholder="Es. Carbonara"
       />
-    </label>
-
-    <label class="filters__field">
-      <span>Categoria</span>
-
-      <select formControlName="category">
-        <option value="">Tutte le categorie</option>
-
-        @for (category of categories; track category) {
-          <option [value]="category">
-            {{ categoryLabels[category] }}
-          </option>
-        }
-      </select>
     </label>
 
     <div class="filters__actions">
@@ -60,12 +83,21 @@
 
   @if (!loading() && !errorMessage()) {
     <p class="menu-page__count">
-      {{ totalElements() }} piatti trovati
+      {{ totalElements() }}
+
+      {{
+        totalElements() === 1
+          ? 'piatto trovato'
+          : 'piatti trovati'
+      }}
     </p>
   }
 
   @if (loading()) {
-    <section class="state-card" aria-live="polite">
+    <section
+      class="state-card"
+      aria-live="polite"
+    >
       <p>Caricamento del menu...</p>
     </section>
   } @else if (errorMessage(); as message) {
@@ -78,7 +110,7 @@
       <button
         class="button button--primary"
         type="button"
-        (click)="loadDishes(currentPage())"
+        (click)="loadDishes()"
       >
         Riprova
       </button>
@@ -90,44 +122,56 @@
       </p>
     </section>
   } @else {
-    <section
-      class="dish-grid"
-      aria-label="Piatti disponibili"
-    >
-      @for (dish of dishes(); track dish.id) {
-        <app-dish-card
-          [dish]="dish"
-          [orderingEnabled]="canOrder()"
-          (addToCart)="addDishToCart($event)"
-        />
+    <!-- Sezioni dei piatti raggruppate per categoria -->
+    <div class="menu-sections">
+      @for (
+        group of categoryGroups();
+        track group.category
+        ) {
+        <section
+          class="menu-section"
+          [attr.aria-labelledby]="
+            'menu-category-' + group.category
+          "
+        >
+          <header class="menu-section__header">
+            <div>
+              <span class="menu-section__eyebrow">
+                Categoria
+              </span>
+
+              <h2
+                [id]="'menu-category-' + group.category"
+              >
+                {{ group.label }}
+              </h2>
+            </div>
+
+            <span class="menu-section__count">
+              {{ group.dishes.length }}
+
+              {{
+                group.dishes.length === 1
+                  ? 'piatto'
+                  : 'piatti'
+              }}
+            </span>
+          </header>
+
+          <div class="dish-grid">
+            @for (
+              dish of group.dishes;
+              track dish.id
+              ) {
+              <app-dish-card
+                [dish]="dish"
+                [orderingEnabled]="canOrder()"
+                (addToCart)="addDishToCart($event)"
+              />
+            }
+          </div>
+        </section>
       }
-    </section>
-
-    <nav
-      class="pagination"
-      aria-label="Paginazione del menu"
-    >
-      <button
-        class="button button--secondary"
-        type="button"
-        [disabled]="firstPage() || loading()"
-        (click)="goToPreviousPage()"
-      >
-        ← Precedente
-      </button>
-
-      <span>
-        Pagina {{ currentPage() + 1 }} di {{ totalPages() }}
-      </span>
-
-      <button
-        class="button button--secondary"
-        type="button"
-        [disabled]="lastPage() || loading()"
-        (click)="goToNextPage()"
-      >
-        Successiva →
-      </button>
-    </nav>
+    </div>
   }
 </main>

@@ -4,29 +4,15 @@
 
     <h1>I miei ordini</h1>
 
-    <p>
-      Controlla lo stato e il contenuto degli ordini
-      che hai effettuato.
-    </p>
+    <p>Controlla lo stato e il contenuto degli ordini che hai effettuato.</p>
   </header>
 
-  <form
-    class="filters"
-    [formGroup]="filtersForm"
-    (ngSubmit)="applyFilters()"
-  >
+  <form class="filters" [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
     <div class="filter-field">
-      <label for="order-status">
-        Stato dell’ordine
-      </label>
+      <label for="order-status"> Stato dell’ordine </label>
 
-      <select
-        id="order-status"
-        formControlName="status"
-      >
-        <option value="">
-          Tutti gli stati
-        </option>
+      <select id="order-status" formControlName="status">
+        <option value="">Tutti gli stati</option>
 
         @for (status of statusOptions; track status) {
           <option [value]="status">
@@ -37,24 +23,13 @@
     </div>
 
     <div class="filter-field">
-      <label for="start-date">
-        A partire dal
-      </label>
+      <label for="start-date"> A partire dal </label>
 
-      <input
-        id="start-date"
-        type="date"
-        formControlName="startDate"
-      />
+      <input id="start-date" type="date" formControlName="startDate" />
     </div>
 
     <div class="filter-actions">
-      <button
-        type="submit"
-        [disabled]="loading()"
-      >
-        Applica filtri
-      </button>
+      <button type="submit" [disabled]="loading()">Applica filtri</button>
 
       <button
         class="secondary-button"
@@ -68,63 +43,37 @@
   </form>
 
   @if (loading()) {
-    <section
-      class="feedback"
-      aria-live="polite"
-    >
-      <div
-        class="loader"
-        aria-hidden="true"
-      ></div>
+    <section class="feedback" aria-live="polite">
+      <div class="loader" aria-hidden="true"></div>
 
       <p>Caricamento degli ordini...</p>
     </section>
   } @else if (errorMessage(); as message) {
-    <section
-      class="feedback feedback--error"
-      role="alert"
-    >
+    <section class="feedback feedback--error" role="alert">
       <h2>Qualcosa è andato storto</h2>
 
       <p>{{ message }}</p>
 
-      <button
-        type="button"
-        (click)="loadOrders(currentPage())"
-      >
-        Riprova
-      </button>
+      <button type="button" (click)="loadOrders(currentPage())">Riprova</button>
     </section>
   } @else if (orders().length === 0) {
     <section class="feedback">
       <h2>Nessun ordine trovato</h2>
 
-      <p>
-        Non ci sono ordini corrispondenti
-        ai filtri selezionati.
-      </p>
+      <p>Non ci sono ordini corrispondenti ai filtri selezionati.</p>
 
-      <a routerLink="/menu">
-        Vai al menu
-      </a>
+      <a routerLink="/menu"> Vai al menu </a>
     </section>
   } @else {
     <div class="results-heading">
       <p>
         <strong>{{ totalElements() }}</strong>
 
-        {{
-          totalElements() === 1
-            ? 'ordine trovato'
-            : 'ordini trovati'
-        }}
+        {{ totalElements() === 1 ? 'ordine trovato' : 'ordini trovati' }}
       </p>
     </div>
 
-    <section
-      class="orders-list"
-      aria-label="Elenco dei tuoi ordini"
-    >
+    <section class="orders-list" aria-label="Elenco dei tuoi ordini">
       @for (order of orders(); track order.id) {
         <article class="order-card">
           <header class="order-card__header">
@@ -134,19 +83,27 @@
               <h2>#{{ order.id }}</h2>
 
               <time [attr.datetime]="order.orderDate">
-                {{
-                  order.orderDate
-                    | date: 'dd/MM/yyyy, HH:mm'
-                }}
+                {{ order.orderDate | date: 'dd/MM/yyyy, HH:mm' }}
               </time>
             </div>
 
-            <span
-              class="status-badge"
-              [attr.data-status]="order.status"
-            >
-              {{ statusLabels[order.status] }}
-            </span>
+            <div class="order-card__statuses" aria-label="Stato dell'ordine e del pagamento">
+              <div>
+                <small>Stato ordine</small>
+
+                <span class="status-badge" [attr.data-status]="order.status">
+                  {{ statusLabels[order.status] }}
+                </span>
+              </div>
+
+              <div>
+                <small>Pagamento</small>
+
+                <span class="payment-state" [attr.data-payment-status]="order.paymentStatus">
+                  {{ paymentLabels[order.paymentStatus] }}
+                </span>
+              </div>
+            </div>
           </header>
 
           <dl class="order-information">
@@ -166,28 +123,10 @@
             }
 
             <div>
-              <dt>Pagamento</dt>
-
-              <dd>
-                {{
-                  paymentLabels[
-                    order.paymentStatus
-                    ]
-                }}
-              </dd>
-            </div>
-
-            <div>
               <dt>Totale</dt>
 
               <dd>
-                {{
-                  order.total
-                    | currency:
-                    'EUR':
-                    'symbol':
-                    '1.2-2'
-                }}
+                {{ order.total | currency: 'EUR' : 'symbol' : '1.2-2' }}
               </dd>
             </div>
           </dl>
@@ -196,59 +135,150 @@
             <h3>Piatti ordinati</h3>
 
             <ul>
-              @for (
-                item of order.items;
-                track item.id
-                ) {
+              @for (item of order.items; track item.id) {
                 <li>
                   <span>
-                    <strong>
-                      {{ item.quantity }} ×
-                    </strong>
+                    <strong> {{ item.quantity }} × </strong>
 
                     {{ item.dish.name }}
                   </span>
 
                   <span>
-                    {{
-                      item.unitPrice * item.quantity
-                        | currency:
-                        'EUR':
-                        'symbol':
-                        '1.2-2'
-                    }}
+                    {{ item.unitPrice * item.quantity | currency: 'EUR' : 'symbol' : '1.2-2' }}
                   </span>
                 </li>
               }
             </ul>
           </div>
+
+          @if (
+            canPayNow(order) ||
+            canRequestWaiterPayment(order) ||
+            canRequestAssistance(order) ||
+            paymentConfirmationOrderId() === order.id ||
+            actionNotice(order.id) !== null
+          ) {
+            <footer class="order-actions">
+              <div class="order-actions__heading">
+                <div>
+                  <span>Azioni sull’ordine</span>
+                  <h3>Come possiamo aiutarti?</h3>
+                </div>
+
+                @if (order.table; as table) {
+                  <small>Tavolo {{ table.number }}</small>
+                }
+              </div>
+
+              @if (
+                canPayNow(order) || canRequestWaiterPayment(order) || canRequestAssistance(order)
+              ) {
+                <div class="order-actions__buttons">
+                  @if (canRequestAssistance(order)) {
+                    <button
+                      class="order-action-button order-action-button--secondary"
+                      type="button"
+                      [disabled]="
+                        actionInProgress() !== null || assistanceAlreadyRequested(order.id)
+                      "
+                      (click)="requestAssistance(order)"
+                    >
+                      @if (isActionInProgress(order.id, 'ASSISTANCE')) {
+                        Invio in corso...
+                      } @else if (assistanceAlreadyRequested(order.id)) {
+                        Assistenza richiesta
+                      } @else {
+                        Richiedi assistenza
+                      }
+                    </button>
+                  }
+
+                  @if (canPayNow(order)) {
+                    <button
+                      class="order-action-button order-action-button--primary"
+                      type="button"
+                      [disabled]="actionInProgress() !== null"
+                      (click)="openPaymentConfirmation(order.id)"
+                    >
+                      Paga ora
+                    </button>
+                  }
+
+                  @if (canRequestWaiterPayment(order)) {
+                    <button
+                      class="order-action-button order-action-button--waiter"
+                      type="button"
+                      [disabled]="actionInProgress() !== null"
+                      (click)="requestWaiterPayment(order)"
+                    >
+                      {{
+                        isActionInProgress(order.id, 'WAITER_PAYMENT')
+                          ? 'Invio in corso...'
+                          : 'Paga tramite cameriere'
+                      }}
+                    </button>
+                  }
+                </div>
+              }
+
+              @if (paymentConfirmationOrderId() === order.id) {
+                <section class="payment-confirmation" aria-label="Conferma del pagamento simulato">
+                  <div>
+                    <span>Pagamento dimostrativo</span>
+                    <p>
+                      Confermi il pagamento di
+                      <strong> {{ order.total | currency: 'EUR' : 'symbol' : '1.2-2' }} </strong>?
+                    </p>
+                    <small> Non verrà effettuato alcun addebito reale. </small>
+                  </div>
+
+                  <div class="payment-confirmation__buttons">
+                    <button
+                      type="button"
+                      [disabled]="actionInProgress() !== null"
+                      (click)="confirmPayment(order)"
+                    >
+                      {{
+                        isActionInProgress(order.id, 'PAY') ? 'Pagamento...' : 'Conferma pagamento'
+                      }}
+                    </button>
+
+                    <button
+                      class="payment-confirmation__cancel"
+                      type="button"
+                      [disabled]="actionInProgress() !== null"
+                      (click)="closePaymentConfirmation()"
+                    >
+                      Annulla
+                    </button>
+                  </div>
+                </section>
+              }
+
+              @if (actionNotice(order.id); as notice) {
+                <p
+                  class="order-action-notice"
+                  [class.order-action-notice--error]="notice.kind === 'error'"
+                  role="status"
+                >
+                  {{ notice.message }}
+                </p>
+              }
+            </footer>
+          }
         </article>
       }
     </section>
 
     @if (totalPages() > 1) {
-      <nav
-        class="pagination"
-        aria-label="Paginazione degli ordini"
-      >
-        <button
-          type="button"
-          [disabled]="firstPage() || loading()"
-          (click)="goToPreviousPage()"
-        >
+      <nav class="pagination" aria-label="Paginazione degli ordini">
+        <button type="button" [disabled]="firstPage() || loading()" (click)="goToPreviousPage()">
           ← Precedente
         </button>
 
-        <span>
-          Pagina {{ currentPage() + 1 }}
-          di {{ totalPages() }}
-        </span>
+        <span> Pagina {{ currentPage() + 1 }} di {{ totalPages() }} </span>
 
-        <button
-          type="button"
-          [disabled]="lastPage() || loading()"
-          (click)="goToNextPage()"
-        >
+        <button type="button" [disabled]="lastPage() || loading()" (click)="goToNextPage()">
           Successiva →
         </button>
       </nav>

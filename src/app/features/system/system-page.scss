@@ -3,8 +3,8 @@
   min-height: 100dvh;
   place-items: center;
   padding: 1.5rem;
-  background: #f7f3ec;
-  color: #27231f;
+  background: var(--om-bg-elevated);
+  color: var(--om-text);
 }
 
 .system-page {
@@ -13,16 +13,16 @@
 
 .system-card {
   padding: clamp(2rem, 7vw, 4rem);
-  border: 1px solid #e3d8ca;
+  border: 1px solid var(--om-border);
   border-radius: 1.25rem;
-  background: #fffdf9;
-  box-shadow: 0 1.25rem 3rem rgb(68 47 29 / 10%);
+  background: var(--om-surface);
+  box-shadow: 0 1.25rem 3rem rgb(51 61 42 / 10%);
   text-align: center;
 }
 
 .system-card__code {
   margin: 0;
-  color: #8b4513;
+  color: var(--om-accent);
   font-size: 1rem;
   font-weight: 800;
   letter-spacing: 0.18em;
@@ -35,7 +35,7 @@
 
 .system-card__message {
   margin: 0;
-  color: #625b53;
+  color: var(--om-text-soft);
   line-height: 1.6;
 }
 
@@ -44,17 +44,47 @@
   margin-top: 2rem;
   padding: 0.8rem 1.25rem;
   border-radius: 999px;
-  background: #8b4513;
-  color: #ffffff;
+  background: var(--om-accent);
+  color: var(--om-panna);
   font-weight: 700;
   text-decoration: none;
 }
 
 .system-card__link:hover {
-  background: #6f360e;
+  background: var(--om-accent-strong);
 }
 
 .system-card__link:focus-visible {
-  outline: 3px solid #d69b6a;
+  outline: 3px solid var(--om-accent-light);
   outline-offset: 3px;
+}
+
+/* Clear-glass refinement shared by the operational pages. */
+:host :is(
+  .filters,
+  .feedback,
+  .operational-overview,
+  .user-details,
+  .table-editor,
+  [class$='-card'],
+  [class*='-card ']
+) {
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
+  backdrop-filter: blur(18px) saturate(118%);
+}
+
+:host :is(input, select, textarea):focus {
+  border-color: var(--om-border-strong);
+  background-color: var(--om-surface-hover);
+  box-shadow: 0 0 0 4px rgb(var(--om-accent-rgb) / 12%);
+}
+
+:host :is(
+  [class$='-card'],
+  [class*='-card ']
+) {
+  transition:
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-normal) var(--motion-ease),
+    transform var(--motion-normal) var(--motion-ease);
 }

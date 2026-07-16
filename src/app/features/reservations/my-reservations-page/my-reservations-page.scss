@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-height: 100%;
-  background-color: #faf7f2;
+  background: transparent;
 }
 
 .my-reservations-page {
@@ -18,7 +18,7 @@
   margin-bottom: 28px;
 
   > div > span {
-    color: #a64b2a;
+    color: var(--om-accent);
     font-size: 0.8rem;
     font-weight: 800;
     letter-spacing: 0.12em;
@@ -27,13 +27,13 @@
 
   h1 {
     margin: 8px 0 10px;
-    color: #2f2924;
+    color: var(--om-text);
     font-size: clamp(2.1rem, 5vw, 3.4rem);
   }
 
   p {
     margin: 0;
-    color: #6d645c;
+    color: var(--om-text-muted);
   }
 
   > a {
@@ -42,9 +42,9 @@
     min-height: 44px;
     place-items: center;
     border-radius: 9px;
-    background-color: #a64b2a;
+    background-color: var(--om-accent);
     padding: 0 17px;
-    color: #ffffff;
+    color: var(--om-panna);
     font-weight: 750;
   }
 }
@@ -54,12 +54,12 @@
   align-items: flex-end;
   gap: 16px;
   margin-bottom: 28px;
-  border: 1px solid #e7ded2;
+  border: 1px solid var(--om-border);
   border-radius: 15px;
-  background-color: #ffffff;
+  background-color: var(--om-surface);
   padding: 19px;
   box-shadow:
-    0 8px 24px rgb(61 45 32 / 6%);
+    0 8px 24px rgb(51 61 42 / 6%);
 }
 
 .filter-field {
@@ -69,7 +69,7 @@
   gap: 7px;
 
   label {
-    color: #554c44;
+    color: var(--om-text-soft);
     font-size: 0.84rem;
     font-weight: 750;
   }
@@ -77,18 +77,18 @@
   input {
     width: min(100%, 300px);
     min-height: 44px;
-    border: 1px solid #d8cec2;
+    border: 1px solid var(--om-border);
     border-radius: 9px;
-    background-color: #ffffff;
+    background-color: var(--om-surface);
     padding: 0 12px;
-    color: #302a25;
+    color: var(--om-text);
     font: inherit;
   }
 
   input:focus {
-    border-color: #a64b2a;
+    border-color: var(--om-accent);
     outline:
-      3px solid rgb(166 75 42 / 12%);
+      3px solid rgb(var(--om-accent-rgb) / 12%);
   }
 }
 
@@ -100,9 +100,9 @@
     min-height: 44px;
     border: 0;
     border-radius: 9px;
-    background-color: #a64b2a;
+    background-color: var(--om-accent);
     padding: 0 16px;
-    color: #ffffff;
+    color: var(--om-panna);
     font-weight: 750;
     cursor: pointer;
   }
@@ -113,18 +113,18 @@
   }
 
   .secondary-button {
-    border: 1px solid #d8cec2;
-    background-color: #ffffff;
-    color: #5d554e;
+    border: 1px solid var(--om-border);
+    background-color: var(--om-surface);
+    color: var(--om-text-soft);
   }
 }
 
 .results-heading {
   margin: 0 0 14px;
-  color: #6d645c;
+  color: var(--om-text-muted);
 
   strong {
-    color: #302a25;
+    color: var(--om-text);
   }
 }
 
@@ -138,20 +138,20 @@
   grid-template-columns:
     110px minmax(0, 1fr);
   overflow: hidden;
-  border: 1px solid #e7ded2;
+  border: 1px solid var(--om-border);
   border-radius: 17px;
-  background-color: #ffffff;
+  background-color: var(--om-surface);
   box-shadow:
-    0 8px 24px rgb(61 45 32 / 6%);
+    0 8px 24px rgb(51 61 42 / 6%);
 
   &__date {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    background-color: #a64b2a;
+    background-color: var(--om-accent);
     padding: 20px;
-    color: #ffffff;
+    color: var(--om-panna);
     text-align: center;
 
     span {
@@ -184,7 +184,7 @@
     }
 
     header > div > span {
-      color: #8b8178;
+      color: var(--om-text-muted);
       font-size: 0.72rem;
       font-weight: 800;
       letter-spacing: 0.08em;
@@ -193,7 +193,7 @@
 
     h2 {
       margin: 4px 0 0;
-      color: #302a25;
+      color: var(--om-text);
       font-size: 1.08rem;
       text-transform: capitalize;
     }
@@ -204,13 +204,13 @@
         repeat(3, minmax(0, 1fr));
       gap: 16px;
       margin: 20px 0 0;
-      border-top: 1px solid #eee6dc;
+      border-top: 1px solid var(--om-bg-soft);
       padding-top: 16px;
     }
 
     dt {
       margin-bottom: 4px;
-      color: #887e75;
+      color: var(--om-text-muted);
       font-size: 0.72rem;
       font-weight: 750;
       text-transform: uppercase;
@@ -218,7 +218,7 @@
 
     dd {
       margin: 0;
-      color: #403933;
+      color: var(--om-text);
       font-weight: 750;
     }
   }
@@ -226,7 +226,7 @@
   &__id {
     margin: 16px 0 0;
     overflow-wrap: anywhere;
-    color: #8a8178;
+    color: var(--om-text-muted);
     font-size: 0.75rem;
   }
 }
@@ -239,18 +239,18 @@
   font-weight: 800;
 
   &[data-status='CONFIRMED'] {
-    background-color: #dcefe3;
-    color: #276341;
+    background-color: rgb(95 128 80 / 13%);
+    color: var(--om-success);
   }
 
   &[data-status='COMPLETED'] {
-    background-color: #dcecff;
-    color: #245883;
+    background-color: rgb(101 118 80 / 12%);
+    color: #66765c;
   }
 
   &[data-status='CANCELLED'] {
-    background-color: #f7dddd;
-    color: #8a3333;
+    background-color: rgb(166 80 73 / 12%);
+    color: var(--om-danger);
   }
 }
 
@@ -258,20 +258,20 @@
   display: flex;
   align-items: center;
   flex-direction: column;
-  border: 1px solid #e7ded2;
+  border: 1px solid var(--om-border);
   border-radius: 16px;
-  background-color: #ffffff;
+  background-color: var(--om-surface);
   padding: 50px 24px;
   text-align: center;
 
   h2 {
     margin: 0 0 8px;
-    color: #302a25;
+    color: var(--om-text);
   }
 
   p {
     margin: 0;
-    color: #726960;
+    color: var(--om-text-muted);
   }
 
   button,
@@ -282,15 +282,15 @@
     place-items: center;
     border: 0;
     border-radius: 9px;
-    background-color: #a64b2a;
+    background-color: var(--om-accent);
     padding: 0 18px;
-    color: #ffffff;
+    color: var(--om-panna);
     font-weight: 750;
     cursor: pointer;
   }
 
   &--error {
-    border-color: #e8c6c6;
+    border-color: rgb(166 80 73 / 24%);
   }
 }
 
@@ -298,8 +298,8 @@
   width: 34px;
   height: 34px;
   margin-bottom: 14px;
-  border: 4px solid #eadfd5;
-  border-top-color: #a64b2a;
+  border: 4px solid var(--om-border);
+  border-top-color: var(--om-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -312,18 +312,18 @@
   margin-top: 28px;
 
   span {
-    color: #6c635b;
+    color: var(--om-text-muted);
     font-size: 0.87rem;
     font-weight: 650;
   }
 
   button {
     min-height: 40px;
-    border: 1px solid #d8cec2;
+    border: 1px solid var(--om-border);
     border-radius: 9px;
-    background-color: #ffffff;
+    background-color: var(--om-surface);
     padding: 0 15px;
-    color: #4e463f;
+    color: var(--om-text-soft);
     font-weight: 750;
     cursor: pointer;
   }
@@ -383,4 +383,34 @@
   .loader {
     animation: none;
   }
+}
+
+/* Clear-glass refinement shared by the operational pages. */
+:host :is(
+  .filters,
+  .feedback,
+  .operational-overview,
+  .user-details,
+  .table-editor,
+  [class$='-card'],
+  [class*='-card ']
+) {
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
+  backdrop-filter: blur(18px) saturate(118%);
+}
+
+:host :is(input, select, textarea):focus {
+  border-color: var(--om-border-strong);
+  background-color: var(--om-surface-hover);
+  box-shadow: 0 0 0 4px rgb(var(--om-accent-rgb) / 12%);
+}
+
+:host :is(
+  [class$='-card'],
+  [class*='-card ']
+) {
+  transition:
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-normal) var(--motion-ease),
+    transform var(--motion-normal) var(--motion-ease);
 }
